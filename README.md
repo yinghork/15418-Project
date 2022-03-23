@@ -3,14 +3,17 @@
 
 ### TITLE
 Optimizing Parallelization of Boid Simulation
+
 Claire Ko (yinghork), Haley Carter (hcarter)
+
 
 ### SUMMARY
 We are going to implement an optimized Boid Movement Calculation on the NVIDIA GPUs in the lab. We will use various work distribution strategies and communication mechanisms to create a more efficient simulation of many objects. 
 
+
 ### BACKGROUND
 
-The combined motion of a group, called "boids", is common in nature. Thus, simulating the behaviors of a large number of moving objects is important in fields such as virtual reality and computer animation, where each group member interacts with its neighbors. When simulating the group, each individual boid will compute its position in the next time step, without colliding with its neighbors and attempting to move towards a global goal or attractor. The general group behavior is defined from the individual boid movement and the (possibly changing) location of the global goals.
+The combined motion of a group, called "boids", is common in nature. Thus, simulating the behaviors of a large number of moving objects is important in fields such as virtual reality and computer animation, where each group member interacts with its neighbors. When simulating the group, each individual boid will compute its position in the next time step, without colliding with its neighbors and attempting to move towards a global goal or attractor. The general group behavior is defined from the individual boid movement and the (possibly changing) location of the global goals. The image below describes the three rules for boid movement, in relation to the neighbors of each individual boid: 
 
 ![image](https://user-images.githubusercontent.com/56246022/159631377-de96b45e-c626-4197-9c08-5b721b90ea6c.png)
 
@@ -24,10 +27,20 @@ THE CHALLENGE: Describe why the problem is challenging. What aspects of the prob
 Describe the workload: what are the dependencies, what are its memory access characteristics? (is there locality? is there a high communication to computation ratio?), is there divergent execution?
 Describe constraints: What are the properties of the system that make mapping the workload to it challenging?
 
-The problem is challenging because 
+The problem is challenging because we will need to devise a way to achieve good load balancing across processors. In other words, we will explore optimal ways to distribute work between threads, such that there will be generally equal computation between them. This is challenging because the boids are changing with each time step, and some may have more neighbors than others, and thus more computation than others. Mapping the workload to the current group state is not constant, and will shift as the group moves. Another challenge is minimizing communcation and synchronization costs; each boid depends on its neighbors, and so the neighbors' locations will have to be accessed by the current boid to allow for the detection of neighborhood relationships as shown in the image above. There are data dependencies across boids when searching for the next location, because boids share the same physical space. 
+
+We plan to compare the shared address space model with the message passing model using MPI, OpenMP, and Cilk. We also plan to determine and tune the tradeoff between better global movement, that follow the movement rules, versus better speedup and less communication overhead. We will determine how to evaluate the quality of a boid's move, how to evaluate speedup, as well as clearly define the evaluation metrics of the "goodness" of the solution. 
+
 
 ### RESOURCES
 RESOURCES: Describe the resources (type of computers, starter code, etc.) you will use. What code base will you start from? Are you starting from scratch or using an existing piece of code? Is there a book or paper that you are using as a reference (if so, provide a citation)? Are there any other resources you need, but havenâ€™t figured out how to obtain yet? Could you benefit from access to any special machines?
+
+Resources that we will use include the following paper, which describes the idea of boids:
+
+ex. [Flocks, Herds, and Schools: A Distributed Behavioral Model](https://dl.acm.org/doi/pdf/10.1145/37402.37406)
+
+We will also learn from available sources about building boid simulation, the move constraints and how to represent them in code, and how to construct a evaluation metric.
+
 
 ### GOALS AND DELIVERABLES
 GOALS AND DELIVERABLES: Describe the deliverables or goals of your project. This is by far the most important section of the proposal!
