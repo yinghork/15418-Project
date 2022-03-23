@@ -49,6 +49,14 @@ If your project is an analysis project, what are you hoping to learn about the w
 Systems project proposals should describe what the system will be capable of and what performance is hoped to be achieved.
 
 
+We plan to achieve to have a sequential, and then multiple (2-3) parallel versions of boid movement computation, as well as a visual representation of the movement (that may not be parallelized, as it is simply to show the result of the computations). 
+
+We hope to achieve a parallelized, real time version of the visuals, and not just the computations, as this will show visually the difference between the sequential and parallel computation models. 
+
+If things move slowly, we may only have 1 or 2 parallel versions of the sequential code for computing boid movement, as we explored less than we wanted to in terms of various parallel frameworks and communication models.
+
+Our demo will contain graphs of speedup over various inputs, as well as graphs comparing the speedup over different parallel versions. Additionally, we will run a visual demonstration of the boid movement, which will most likely be created with Unity. We are hoping to answer the question of what is the best load balance in this specific use case, as well as what communication model benefits this computation the most. In general, we want to be able to compare the models we have learned in class, for both computation and communication, and explore how they can work together.  
+
 
 ### PLATFORM CHOICE
 
