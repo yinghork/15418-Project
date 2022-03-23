@@ -2,18 +2,29 @@
 
 
 ### TITLE
-TITLE: Please provide the title of your project, followed by the names of all team members. Teams must be two students, with extremely rare exceptions.
+Optimizing Parallelization of Boid Simulation
+Claire Ko (yinghork), Haley Carter (hcarter)
 
 ### SUMMARY
-SUMMARY: Summarize your project in no more than 2-3 sentences. Describe what you plan to do and what parallel systems you will be working with. 
+We are going to implement an optimized Boid Movement Calculation on the NVIDIA GPUs in the lab. We will use various work distribution strategies and communication mechanisms to create a more efficient simulation of many objects. 
 
 ### BACKGROUND
-BACKGROUND: If your project involves accelerating a compute-intensive application, describe the application or piece of the application you are going to implement in more detail. This description need only be a few paragraphs. It might be helpful to include a block diagram or pseudocode of the basic idea. An important detail is what aspects of the problem might benefit from parallelism and why?
+
+The combined motion of a group, called "boids", is common in nature. Thus, simulating the behaviors of a large number of moving objects is important in fields such as virtual reality and computer animation, where each group member interacts with its neighbors. When simulating the group, each individual boid will compute its position in the next time step, without colliding with its neighbors and attempting to move towards a global goal or attractor. The general group behavior is defined from the individual boid movement and the (possibly changing) location of the global goals.
+
+![image](https://user-images.githubusercontent.com/56246022/159631377-de96b45e-c626-4197-9c08-5b721b90ea6c.png)
+
+Current solutions to the boid simulation problem are not very scalable, in terms of the number of boids, because computation cost as well as the communication costs increase. Our goal is to improve on the current solutions, to build a parallel program to simulate a smooth, generally correct movement for each boid, but not to build a good parallel visual interface for our computations. 
+
+Aspects of the problem that might benefit from parallelism include computing the next best location to move for each boid, and efficient communication between the boids. As there are many boids, it will be essential to parallelize the computing process for every boid, where parallelization is across boids. Since different boids have data dependencies, such as the fact that one boid should avoid the other boids around it, while moving towards/following a global goal location, and the optimization is carried over all boids, our parallel implementation will require communication, either shared state or message passing, and synchronisation over different processes.
+
 
 ### THE CHALLENGE
 THE CHALLENGE: Describe why the problem is challenging. What aspects of the problem might make it difficult to parallelize? In other words, what to you hope to learn by doing the project?
 Describe the workload: what are the dependencies, what are its memory access characteristics? (is there locality? is there a high communication to computation ratio?), is there divergent execution?
 Describe constraints: What are the properties of the system that make mapping the workload to it challenging?
+
+The problem is challenging because 
 
 ### RESOURCES
 RESOURCES: Describe the resources (type of computers, starter code, etc.) you will use. What code base will you start from? Are you starting from scratch or using an existing piece of code? Is there a book or paper that you are using as a reference (if so, provide a citation)? Are there any other resources you need, but havenâ€™t figured out how to obtain yet? Could you benefit from access to any special machines?
