@@ -23,23 +23,21 @@ Aspects of the problem that might benefit from parallelism include computing the
 
 
 ### THE CHALLENGE
-THE CHALLENGE: Describe why the problem is challenging. What aspects of the problem might make it difficult to parallelize? In other words, what to you hope to learn by doing the project?
-Describe the workload: what are the dependencies, what are its memory access characteristics? (is there locality? is there a high communication to computation ratio?), is there divergent execution?
-Describe constraints: What are the properties of the system that make mapping the workload to it challenging?
 
-The problem is challenging because we will need to devise a way to achieve good load balancing across processors. In other words, we will explore optimal ways to distribute work between threads, such that there will be generally equal computation between them. This is challenging because the boids are changing with each time step, and some may have more neighbors than others, and thus more computation than others. Mapping the workload to the current group state is not constant, and will shift as the group moves. Another challenge is minimizing communcation and synchronization costs; each boid depends on its neighbors, and so the neighbors' locations will have to be accessed by the current boid to allow for the detection of neighborhood relationships as shown in the image above. There are data dependencies across boids when searching for the next location, because boids share the same physical space. 
+The problem is challenging because we will need to devise a way to achieve good load balancing across processors. In other words, we will explore optimal ways to distribute work between threads, such that there will be generally equal computation between them. This is challenging because the boids are changing with each time step, and some may have more neighbors than others, and thus more computation than others. Mapping the workload to the current group state is not constant, and will shift as the group moves. 
+
+Another challenge is minimizing communcation and synchronization costs; each boid depends on its neighbors, and so the neighbors' locations will have to be accessed by the current boid to allow for the detection of neighborhood relationships as shown in the image above. There are data dependencies across boids when searching for the next location, because boids share the same physical space. There is data locality as each boid depends only on the general neighbors around it; however, the range of neighbor distance that is covered will need to be tuned. 
 
 We plan to compare the shared address space model with the message passing model using MPI, OpenMP, and Cilk. We also plan to determine and tune the tradeoff between better global movement, that follow the movement rules, versus better speedup and less communication overhead. We will determine how to evaluate the quality of a boid's move, how to evaluate speedup, as well as clearly define the evaluation metrics of the "goodness" of the solution. 
 
 
 ### RESOURCES
-RESOURCES: Describe the resources (type of computers, starter code, etc.) you will use. What code base will you start from? Are you starting from scratch or using an existing piece of code? Is there a book or paper that you are using as a reference (if so, provide a citation)? Are there any other resources you need, but havenâ€™t figured out how to obtain yet? Could you benefit from access to any special machines?
 
 Resources that we will use include the following paper, which describes the idea of boids:
 
 ex. [Flocks, Herds, and Schools: A Distributed Behavioral Model](https://dl.acm.org/doi/pdf/10.1145/37402.37406)
 
-We will also learn from available sources about building boid simulation, the move constraints and how to represent them in code, and how to construct a evaluation metric.
+We will also learn from various sources (not yet determined) about building a boid simulator, the boid movement constraints and how to represent them in code, and how to construct a evaluation metric for determining the "goodness" of the solution.
 
 
 ### GOALS AND DELIVERABLES
@@ -51,9 +49,19 @@ If your project is an analysis project, what are you hoping to learn about the w
 Systems project proposals should describe what the system will be capable of and what performance is hoped to be achieved.
 
 
+
 ### PLATFORM CHOICE
-PLATFORM CHOICE: Describe why the platform (computer and/or language) you have chosen is a good one for your needs. Why does it make sense to use this parallel system for the workload you have chosen?
+
+We will be using the GHC machines for development, testing, and experiments, because it is more accessible and contains CUDA, OpenMP, and MPI support needed for development. We hope to use Bridges-2 in order to leverage the machines on there, to get more accurate measurements. 
 
 
 ### SCHEDULE
-SCHEDULE: Produce a schedule for your project. Your schedule should have at least one item to do per week. List what you plan to get done each week from now until the parallelism competition in order to meet your project goals. Keep in mind that due to other classes, youâ€™ll have more time to work some weeks than others (work that into the schedule). You will need to re-evaluate your progress at the end of each week and update this schedule accordingly. Note the intermediate checkpoint deadline is April 11th. In your schedule we encourage you to be precise as precise as possible. Itâ€™s often helpful to work backward in time from your deliverables and goals, writing down all the little things youâ€™ll need to do (establish the dependencies).
+
+Week 1: 3/28 - 4/1	  Research about boids and boid movement algorithms
+Week 3: 4/3 - 4/8	    Implement sequential/baseline version of boid movement
+4/11	                Milestone Report
+Week 3: 4/11 - 4/15	  Parallelize the sequential program using different parallel frameworks 
+Week 4: 4/18 - 4/22	  Optimize the parallel implementation, conduct experiments and analysis on different parallel frameworks and communication models
+Week 5: 4/25 - 4/29	  Write project report and prepare for poster session
+4/29                  Final Report
+5/5                   Poster Session
