@@ -60,6 +60,7 @@ Resources that we will use include the following papers, which describes the ide
 1. [Flocks, Herds, and Schools: A Distributed Behavioral Model](https://dl.acm.org/doi/pdf/10.1145/37402.37406)
 2. [Autonomous Boids](https://onlinelibrary.wiley.com/doi/10.1002/cav.123)
 3. [Parallel Bird Flocking Simulation](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.48.8430&rep=rep1&type=pdf)
+4. [Parallel simulation of group behaviors](https://ieeexplore.ieee.org/abstract/document/1371337)
 
 We plan to write our own boid simulator code, and we will test on the GHC machines, which have NVIDIA GeForce RTX 2080 B GPUs. 
 
