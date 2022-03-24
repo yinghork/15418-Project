@@ -74,11 +74,11 @@ We will be using the GHC machines for development, testing, and experiments, bec
 
 Week 1: 3/28 - 4/1	  Research about boids and boid movement algorithms
 
-Week 3: 4/3 - 4/8	    Implement sequential/baseline version of boid movement
+Week 3: 4/3 - 4/8	    Implement sequential/baseline version of boid movement, add OpenMP framework (CPU) as initial parallel implementation. 
 
 4/11	                Milestone Report
 
-Week 3: 4/11 - 4/15	  Parallelize the sequential program using different parallel frameworks 
+Week 3: 4/11 - 4/15	  Parallelize the sequential program using different parallel frameworks (CUDA/GPU) and communication models (MPI). 
 
 Week 4: 4/18 - 4/22	  Optimize the parallel implementation, conduct experiments and analysis on different parallel frameworks and communication models
 
