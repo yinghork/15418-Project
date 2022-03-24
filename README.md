@@ -36,10 +36,7 @@ We plan to compare the shared address space model with the message passing model
 Resources that we will use include the following paper, which describes the idea of boids:
 
 1. [Flocks, Herds, and Schools: A Distributed Behavioral Model](https://dl.acm.org/doi/pdf/10.1145/37402.37406)
-
-
 2. [GPU enhanced parallel computing for large scale data clustering](https://www.sciencedirect.com/science/article/pii/S0167739X12001707)
-
 3. [Parallel Cloud Movement Forecasting based on a Modified Boids Flocking Algorithm](https://ieeexplore.ieee.org/abstract/document/9521639)
 4. [Autonomous Boids](https://onlinelibrary.wiley.com/doi/10.1002/cav.123)
 5. [Parallel Bird Flocking Simulation](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.48.8430&rep=rep1&type=pdf)
