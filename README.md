@@ -41,7 +41,8 @@ Aspects of the problem that might benefit from parallelism include computing the
 
 As described above, the main challenge of the algorithm comes in neighbor determination. Each boid is depend on its neighbrs in the flock, but due to the fact that all boids are constantly updating their positions, the neighbors of a boid will change over time. This necessitates updating the set of neighbors for each boid, which naively has O(n^2) complexity. Therefore, we will need to explore more efficient approaches to finding the neighborhood of each boid. 
 
-Additionally, the changing nature of the system provides another challenge for workload distribution. There is high locality between boids near one another in each particular time step, but we will need a dynamic workload distribution to take advantage of this. As well, we will need to consider which partition schemes are most effective for workload balance, as boids potentially cluster in certain areas of the environment or shift position between spartial divisions rapidly.
+Additionally, the changing nature of the system combined with the dependence on nearby neighbors provides another challenge for workload distribution. There is high locality between boids near one another in each particular time step, which we could take advantage of with our workload distribution. However, we will also need to be careful to limit the amount of communication required between processors. As well, we will need to consider which partition schemes are most effective for dynamic workload balance, as boids potentially cluster in certain areas of the environment or shift position between spartial divisions rapidly. Updating the partition between processors is costly, so we will want to minimize the amount of dynamic load re-balancing we need to perform while still ensuring good load balance.
+
 
 ===
 
@@ -54,7 +55,7 @@ We plan to compare the shared address space model with the message passing model
 
 ### RESOURCES
 
-Resources that we will use include the following paper, which describes the idea of boids:
+Resources that we will use include the following papers, which describes the idea of boids and existing attempts at parallelization:
 
 1. [Flocks, Herds, and Schools: A Distributed Behavioral Model](https://dl.acm.org/doi/pdf/10.1145/37402.37406)
 2. [GPU enhanced parallel computing for large scale data clustering](https://www.sciencedirect.com/science/article/pii/S0167739X12001707)
@@ -63,7 +64,11 @@ Resources that we will use include the following paper, which describes the idea
 5. [Parallel Bird Flocking Simulation](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.48.8430&rep=rep1&type=pdf)
 6. [A Neighborhood Grid Data Structure for Massive 3D Crowd Simulation on GPU](https://ieeexplore.ieee.org/abstract/document/5479102)
 
+We plan to write our own boid simulator code, and we will test on the GHC machines, which have NVIDIA GeForce RTX 2080 B GPUs. 
 
+The main resource we currently lack is a visualizer for our boid algorithm implementations. While we have a team member with existing experience with the Unity engine, we are uncertain what the best way for visualizing the output of our algorithm is yet.
+
+===
 
 We will also learn from various sources (not yet determined) about building a boid simulator, the boid movement constraints and how to represent them in code, and how to construct a evaluation metric for determining the "goodness" of the solution.
 
@@ -88,7 +93,7 @@ Our demo will contain graphs of speedup over various inputs, as well as graphs c
 
 ### PLATFORM CHOICE
 
-We will be using the GHC machines for development, testing, and experiments, because it is more accessible and contains CUDA, OpenMP, and MPI support needed for development. We hope to use Bridges-2 in order to leverage the machines on there, to get more accurate measurements. 
+We will be using the GHC machines for development, testing, and experiments, because it is more accessible and contains CUDA and OpenMP support needed for development.
 
 
 ### SCHEDULE
