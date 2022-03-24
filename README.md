@@ -13,9 +13,24 @@ We are going to implement an optimized Boid Movement Calculation on the NVIDIA G
 
 ### BACKGROUND
 
+===
+The "boids" algorithm seeks to simulate the natural flocking motion of animals, primarily birds. Simulating the behaviors of a large number of moving agents interacting with one another is important in fields such as virtual reality and computer animation. The boids algorithm also has much in common with other n-body and particle system simulations, and has therefore seen use in domains related to those problems, such as weather simulation and data visualization. Rather than control the motion of the flock globally, the algorithm creates emergent flocking behavior through a few simple behaviors performed by each boid, based on the limited information within its range of vision. When simulating the flock at each time step, each individual boid updates its position and velocity towards some goal based on three forces. The image below describes the three rules for boid movement, in relation to the neighbors within the limited vision of each individual boid:
+
+===
+
 The combined motion of a group, called "boids", is common in nature. Thus, simulating the behaviors of a large number of moving objects is important in fields such as virtual reality and computer animation, where each group member interacts with its neighbors. When simulating the group, each individual boid will compute its position in the next time step, without colliding with its neighbors and attempting to move towards a global goal or attractor. The general group behavior is defined from the individual boid movement and the (possibly changing) location of the global goals. The image below describes the three rules for boid movement, in relation to the neighbors of each individual boid: 
 
 ![image](https://user-images.githubusercontent.com/56246022/159631377-de96b45e-c626-4197-9c08-5b721b90ea6c.png)
+
+===
+The general structure of the algorithm is as follows: for each time step, for each boid, find the boid's neighbors. For each neighbor, calculate its effect on separation, alignment, and cohesion forces. Calculate the goal-seeking force. Finally, combine those forces to calculate the new velocity and position.
+
+While each boid is dependent on its neighbors, its limited range of vision means that its number of neighbors remains relatively constant as the number of boids in the flock increases. As well, the force calculations based on neighbors, then updating position and velocity, are the same for each boid. This ensures that the work performed by each boid in each time step is relatively similar, meaning that the update of each boid will benefit from a parallel implementation. Additionally, with proper workload division, a parallel application could benefit highly from locality, as boids near each other will also have similar sets of neighbors.
+
+As we will discuss further below, a major aspect of the boids algorithm comes from determining the neighbors of each boid. The naive approach has O(n^2) complexity in the number of boids in the flock, which means that the sequential implementation is not very scalable in the number of boids. While this is a challenge for implementation, any potential speedup from a parallel implementation is highly useful. Reducing the computation time of large scale simulation to real time would allow for significantly more use of the algorithm, such as real-time animation in video games.
+
+===
+
 
 Current solutions to the boid simulation problem are not very scalable, in terms of the number of boids, because computation cost as well as the communication costs increase. Our goal is to improve on the current solutions, to build a parallel program to simulate a smooth, generally correct movement for each boid, but not to build a good parallel visual interface for our computations. 
 
@@ -23,6 +38,12 @@ Aspects of the problem that might benefit from parallelism include computing the
 
 
 ### THE CHALLENGE
+
+As described above, the main challenge of the algorithm comes in neighbor determination. Each boid is depend on its neighbrs in the flock, but due to the fact that all boids are constantly updating their positions, the neighbors of a boid will change over time. This necessitates updating the set of neighbors for each boid, which naively has O(n^2) complexity. Therefore, we will need to explore more efficient approaches to finding the neighborhood of each boid. 
+
+Additionally, the changing nature of the system provides another challenge for workload distribution. There is high locality between boids near one another in each particular time step, but we will need a dynamic workload distribution to take advantage of this. As well, we will need to consider which partition schemes are most effective for workload balance, as boids potentially cluster in certain areas of the environment or shift position between spartial divisions rapidly.
+
+===
 
 The problem is challenging because we will need to devise a way to achieve good load balancing across processors. In other words, we will explore optimal ways to distribute work between threads, such that there will be generally equal computation between them. This is challenging because the boids are changing with each time step, and some may have more neighbors than others, and thus more computation than others. Mapping the workload to the current group state is not constant, and will shift as the group moves. 
 
