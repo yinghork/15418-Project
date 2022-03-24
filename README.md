@@ -74,12 +74,6 @@ We will also learn from various sources (not yet determined) about building a bo
 
 
 ### GOALS AND DELIVERABLES
-GOALS AND DELIVERABLES: Describe the deliverables or goals of your project. This is by far the most important section of the proposal!
-Separate your goals into what you PLAN TO ACHIEVE ("100%" -- what you believe you must get done to have a successful project and get the grade you expect) and an extra goal or two ("125%") that you HOPE TO ACHIEVE if the project goes really well and you get ahead of schedule, as well as goals in case the work goes more slowly ("75%"). It may not be possible to state precise performance goals at this time, but we encourage you be as precise as possible. If you do state a goal, give some justification of why you think you can achieve it. (e.g., I hope to speed up my starter code 10x, because if I did it would run in real-time.)
-
-If applicable, describe the demo you plan to show at the poster session (Will it be an interactive demo? Will you show an output of the program that is really neat? Will you show speedup graphs?). Specifically, what will you show us that will demonstrate you did a good job?
-If your project is an analysis project, what are you hoping to learn about the workload or system being studied? What question(s) do you plan to answer in your analysis?
-Systems project proposals should describe what the system will be capable of and what performance is hoped to be achieved.
 
 First, we plan to create a sequential implementation of the boids algorithm. Following that, we plan to create a CPU-based parallel implementation using OpenMP, to create a baseline parallel implementation. Finally, we plan to create a GPU-based parallel implementation using CUDA, where we will attempt to maximize our speedup of the algorithm. In creating our CUDA implementation, we plan to explore various strategies for work partitioning and data structures for improving the efficiency of finding neighbors. We are hoping to answer the question of which load balancing strategies and data structures benefit this specfici use case the most.
 
