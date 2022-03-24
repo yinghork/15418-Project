@@ -66,7 +66,7 @@ Resources that we will use include the following papers, which describes the ide
 
 We plan to write our own boid simulator code, and we will test on the GHC machines, which have NVIDIA GeForce RTX 2080 B GPUs. 
 
-The main resource we currently lack is a visualizer for our boid algorithm implementations. While we have a team member with existing experience with the Unity engine, we are uncertain what the best way for visualizing the output of our algorithm is yet.
+The main resource which we currently lack is a visualizer for our boid algorithm implementations. While we have a team member with existing experience with the Unity engine, we are uncertain what the best way for visualizing the output of our algorithm is yet.
 
 ===
 
@@ -81,6 +81,15 @@ If applicable, describe the demo you plan to show at the poster session (Will it
 If your project is an analysis project, what are you hoping to learn about the workload or system being studied? What question(s) do you plan to answer in your analysis?
 Systems project proposals should describe what the system will be capable of and what performance is hoped to be achieved.
 
+First, we plan to create a sequential implementation of the boids algorithm. Following that, we plan to create a CPU-based parallel implementation using OpenMP, to create a baseline parallel implementation. Finally, we plan to create a GPU-based parallel implementation using CUDA, where we will attempt to maximize our speedup of the algorithm. In creating our CUDA implementation, we plan to explore various strategies for work partitioning and data structures for improving the efficiency of finding neighbors. We are hoping to answer the question of which load balancing strategies and data structures benefit this specfici use case the most.
+
+If things go well, we hope to create an animated visual representation of the boid simulation to show the result of the parallel computation, and to achieve the speedup required for real-time simulation of the visuals.
+
+If things move slowly, we may only have one or two parallel version of the boid algorithm, and will instead focus on analyzing what challenges and bottlenecks prevented us from being able to achieve better speedup, without animated visualization.
+
+Our demo will contain graphs of speedup over various inputs, as well as graphs comparing the speedup over different parallel versions. As mentioned, we will hopefully run a visual demonstration of the boid movement, which will most likely be created with Unity. 
+
+====
 
 We plan to achieve to have a sequential, and then multiple (2-3) parallel versions of boid movement computation, as well as a visual representation of the movement (that may not be parallelized, as it is simply to show the result of the computations). 
 
@@ -104,7 +113,7 @@ Week 3: 4/3 - 4/8	    Implement sequential/baseline version of boid movement, ad
 
 4/11	                Milestone Report
 
-Week 3: 4/11 - 4/15	  Parallelize the sequential program using different parallel frameworks (CUDA/GPU) and communication models (MPI). 
+Week 3: 4/11 - 4/15	  Parallelize the sequential program using different parallel framework (CUDA/GPU). 
 
 Week 4: 4/18 - 4/22	  Optimize the parallel implementation, conduct experiments and analysis on different parallel frameworks and communication models
 
