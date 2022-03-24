@@ -55,7 +55,7 @@ The main resource which we currently lack is a visualizer for our boid algorithm
 
 ### GOALS AND DELIVERABLES
 
-First, we plan to create a sequential implementation of the boids algorithm. Following that, we plan to create a CPU-based parallel implementation using OpenMP, to create a baseline parallel implementation. Finally, we plan to create a GPU-based parallel implementation using CUDA, where we will attempt to maximize our speedup of the algorithm. In creating our CUDA implementation, we plan to explore various strategies for work partitioning and data structures for improving the efficiency of finding neighbors. We are hoping to answer the question of which load balancing strategies and data structures benefit this specfici use case the most.
+First, we plan to create a sequential implementation of the boids algorithm. Following that, we plan to create a CPU-based parallel implementation using OpenMP, to create a baseline parallel implementation. Finally, we plan to create a GPU-based parallel implementation using CUDA, where we will attempt to maximize our speedup of the algorithm. In creating our CUDA implementation, we plan to explore various strategies for work partitioning and data structures for improving the efficiency of finding neighbors. We are hoping to answer the question of which load balancing strategies and data structures benefit this specific use case the most.
 
 If things go well, we hope to create an animated visual representation of the boid simulation to show the result of the parallel computation, and to achieve the speedup required for real-time simulation of the visuals.
 
