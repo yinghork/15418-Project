@@ -59,7 +59,7 @@ First, we plan to create a sequential implementation of the boids algorithm. Fol
 
 If things go well, we hope to create an animated visual representation of the boid simulation to show the result of the parallel computation, and to achieve the speedup required for real-time simulation of the visuals.
 
-If things move slowly, we may only have one or two parallel version of the boid algorithm, and will instead focus on analyzing what challenges and bottlenecks prevented us from being able to achieve better speedup, without animated visualization.
+If things move slowly, we may only have one parallel version of the boid algorithm, and will instead focus on analyzing what challenges and bottlenecks prevented us from being able to achieve better speedup, without animated visualization.
 
 Our demo will contain graphs of speedup over various inputs, as well as graphs comparing the speedup over different parallel versions. As mentioned, we will hopefully run a visual demonstration of the boid movement, which will most likely be created with Unity. 
 
