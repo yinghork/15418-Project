@@ -35,15 +35,20 @@ We plan to compare the shared address space model with the message passing model
 
 Resources that we will use include the following paper, which describes the idea of boids:
 
-ex. [Flocks, Herds, and Schools: A Distributed Behavioral Model](https://dl.acm.org/doi/pdf/10.1145/37402.37406)
+1. [Flocks, Herds, and Schools: A Distributed Behavioral Model](https://dl.acm.org/doi/pdf/10.1145/37402.37406)
+
+
+2. [GPU enhanced parallel computing for large scale data clustering](https://www.sciencedirect.com/science/article/pii/S0167739X12001707)
+
+3. [Parallel Cloud Movement Forecasting based on a Modified Boids Flocking Algorithm](https://ieeexplore.ieee.org/abstract/document/9521639)
+4. [Autonomous Boids](https://onlinelibrary.wiley.com/doi/10.1002/cav.123)
+5. [Parallel Bird Flocking Simulation](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.48.8430&rep=rep1&type=pdf)
+6. [A Neighborhood Grid Data Structure for Massive 3D Crowd Simulation on GPU](https://ieeexplore.ieee.org/abstract/document/5479102)
+
+
 
 We will also learn from various sources (not yet determined) about building a boid simulator, the boid movement constraints and how to represent them in code, and how to construct a evaluation metric for determining the "goodness" of the solution.
 
-[GPU enhanced parallel computing for large scale data clustering](https://www.sciencedirect.com/science/article/pii/S0167739X12001707)
-[Parallel Cloud Movement Forecasting based on a Modified Boids Flocking Algorithm](https://ieeexplore.ieee.org/abstract/document/9521639)
-[Autonomous Boids](https://onlinelibrary.wiley.com/doi/10.1002/cav.123)
-[Parallel Bird Flocking Simulation](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.48.8430&rep=rep1&type=pdf)
-[A Neighborhood Grid Data Structure for Massive 3D Crowd Simulation on GPU](https://ieeexplore.ieee.org/abstract/document/5479102)
 
 ### GOALS AND DELIVERABLES
 GOALS AND DELIVERABLES: Describe the deliverables or goals of your project. This is by far the most important section of the proposal!
