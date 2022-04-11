@@ -1,17 +1,56 @@
-APP_NAME=wireroute
+EXECUTABLE := boids
+LDFLAGS=-L/usr/local/depot/cuda-10.2/lib64/ -lcudart
+CU_FILES   := cudaBoids.cu
+CU_DEPS    :=
+CC_FILES   := main.cpp seqBoids.cpp
+LOGS	   := logs
 
-OBJS=wireroute.o
+all: $(EXECUTABLE)
 
-CXX = g++ -m64 -std=c++11
-CXXFLAGS = -I. -O3 -Wall -fopenmp -Wno-unknown-pragmas
+###########################################################
 
-default: $(APP_NAME)
+ARCH=$(shell uname | sed -e 's/-.*//g')
+OBJDIR=objs
+CXX=g++ -m64 -std=c++11
+CXXFLAGS=-O3 -Wall -g
+HOSTNAME=$(shell hostname)
 
-$(APP_NAME): $(OBJS)
-	$(CXX) $(CXXFLAGS) -o $@ $(OBJS)
+LIBS       :=
+FRAMEWORKS :=
 
-%.o: %.cpp
-	$(CXX) $< $(CXXFLAGS) -c -o $@
+NVCCFLAGS=-O3 -m64 --gpu-architecture compute_61 -ccbin /usr/bin/gcc
+LIBS += GL glut cudart
+
+LDLIBS  := $(addprefix -l, $(LIBS))
+LDFRAMEWORKS := $(addprefix -framework , $(FRAMEWORKS))
+
+NVCC=nvcc
+
+OBJS=$(OBJDIR)/main.o $(OBJDIR)/seqBoids.o
+
+
+.PHONY: dirs clean
+
+default: $(EXECUTABLE)
+
+dirs:
+		mkdir -p $(OBJDIR)/
 
 clean:
-	/bin/rm -rf *~ *.o $(APP_NAME) *.class
+		rm -rf $(OBJDIR) *~ $(EXECUTABLE) $(LOGS) *.ppm
+
+export: $(EXFILES)
+	cp -p $(EXFILES) $(STARTER)
+
+
+$(EXECUTABLE): dirs $(OBJS)
+		$(CXX) $(CXXFLAGS) -o $@ $(OBJS) $(LDFLAGS) $(LDLIBS) $(LDFRAMEWORKS)
+
+
+
+
+$(OBJDIR)/%.o: %.cpp
+		$(CXX) $< $(CXXFLAGS) -c -o $@
+
+$(OBJDIR)/%.o: %.cu
+		$(NVCC) $< $(NVCCFLAGS) -c -o $@
