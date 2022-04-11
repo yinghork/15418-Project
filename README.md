@@ -92,10 +92,20 @@ Week 5: 4/25 - 4/29	  Create visualization, write project report and prepare for
 The milestone exists is to give you a deadline approximately halfway through the project. The following are suggestions for information to include in your milestone write-up. Your goal in the writeup is to assure the course staff (and yourself) that your project is proceeding as you said it would in your proposal. If it is not, your milestone writeup should emphasize what has been causing you problems, and provide an adjusted schedule and adjusted goals. As projects differ, not all items in the list below are relevant to all projects.
 Make sure your project schedule on your main project page is up to date with work completed so far, and well as with a revised plan of work for the coming weeks. As by this time you should have a good understanding of what is required to complete your project, I want to see a very detailed schedule for the coming weeks. I suggest breaking time down into half-week increments. Each increment should have at least one task, and for each task put a personâ€™s name on it.
 
-Add a new section called MILESTONE to your README.md:
+### MILESTONE
 
 In one to two paragraphs, summarize the work that you have completed so far. (This should be easy if you have been maintaining this information on your project page.)
+
+We wrote a sequential version of the boid algorithm, complete with flock centering, neighbor collision avoidance, velocity matching, leader following, and box bound following rules. We apply these rules to each boid, to compute the next location of each boid. We store these locations at each time step, or frame, in output files of the form "framePositions_i.txt" where i is the time step from 0 to x. We also wrote a python script to parse these output files and render each time step sequentially, to observe the general movement of the boid group over frames. This is a basic implementation of the animation of boid movement, which we are using to judge the quality of the boid algorithm output. 
+
+
 Describe how you are doing with respect to the goals and deliverables stated in your proposal. Do you still believe you will be able to produce all your deliverables? If not, why? What about the nice to haves? In your milestone writeup we want an updated list of goals that you plan to hit for the poster session.
+
+
 What do you plan to show at the poster session? Will it be a demo? Will it be a graph?
+
+
 Do you have preliminary results at this time? If so, it would be great to included them in your milestone write-up.
-List the issues that concern you the most. Are there any remaining unknowns (things you simply donâ€™t know how to solve, or resource you donâ€™t know how to get) or is it just a matter of coding and doing the work? If you do not wish to put this information on a public web site you are welcome to email the staff directly.
+
+
+List the issues that concern you the most. Are there any remaining unknowns (things you simply don't know how to solve, or resource you don't know how to get) or is it just a matter of coding and doing the work? If you do not wish to put this information on a public web site you are welcome to email the staff directly.
