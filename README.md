@@ -77,20 +77,24 @@ Week 2: 4/3 - 4/8	    Implement sequential/baseline version of boid movement, ad
 
 4/11	                Milestone Report
 
-Week 3: 4/11 - 4/15	  Parallelize the sequential program using different parallel framework (CUDA/GPU). 
+Week 3: 4/11 - 4/15	  Haley - Parallelize the current sequential program using different parallel framework (CUDA). 
+                      Claire - Spend half the week to update the sequential program with more fluid boid movement, adding and refining possible rules and parameters. Then around 4/14, work on the parallelization with Haley. 
 
-Week 4: 4/18 - 4/22	  Optimize the parallel implementation, conduct experiments and analysis on different parallel frameworks and communication models.
+Week 4: 4/18 - 4/22	  Optimize the parallel implementation, conduct experiments and analysis on communication models.
+                      Haley - Experiment with different frameworks for optimizing neighbor determination/communication. 
+                      Claire - Experiment with different work distributions and the parameters associated with boid movement.
 
 Week 5: 4/25 - 4/29	  Create visualization, write project report and prepare for poster session.
+                      Haley - First half: Create a visualization using OpenGL/GLUT. 
+                      Haley - Second half: Write project report and work on poster.
+                      Claire - First half: Run final tests and collect information for report/poster.
+                      Claire - Second half: Write project report and work on poster.
 
 4/29                  Final Report
 
 5/5                   Poster Session
 
 
-
-The milestone exists is to give you a deadline approximately halfway through the project. The following are suggestions for information to include in your milestone write-up. Your goal in the writeup is to assure the course staff (and yourself) that your project is proceeding as you said it would in your proposal. If it is not, your milestone writeup should emphasize what has been causing you problems, and provide an adjusted schedule and adjusted goals. As projects differ, not all items in the list below are relevant to all projects.
-Make sure your project schedule on your main project page is up to date with work completed so far, and well as with a revised plan of work for the coming weeks. As by this time you should have a good understanding of what is required to complete your project, I want to see a very detailed schedule for the coming weeks. I suggest breaking time down into half-week increments. Each increment should have at least one task, and for each task put a personâ€™s name on it.
 
 ### MILESTONE
 
