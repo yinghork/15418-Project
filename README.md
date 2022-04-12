@@ -79,7 +79,7 @@ Week 2: 4/3 - 4/8	    Implement sequential/baseline version of boid movement, ad
 
 Week 3: 4/11 - 4/15	  Haley - Parallelize the current sequential program using different parallel framework (CUDA). 
 
-                      Claire - Spend half the week to update the sequential program with more fluid boid movement, adding and refining possible rules and parameters. Then around 4/14, work on the parallelization with Haley. 
+|                     Claire - Spend half the week to update the sequential program with more fluid boid movement, adding and refining possible rules and parameters. Then around 4/14, work on the parallelization with Haley. 
 
 Week 4: 4/18 - 4/22	  Optimize the parallel implementation, conduct experiments and analysis on communication models.
 
