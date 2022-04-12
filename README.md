@@ -71,30 +71,30 @@ We will be using the GHC machines for development, testing, and experiments, bec
 
 ### SCHEDULE
 
-Week 1: 3/28 - 4/1	  Research about boids and boid movement algorithms.
+#### Week 1: 3/28 - 4/1	  Research about boids and boid movement algorithms.
 
 
-Week 2: 4/3 - 4/8     Implement sequential/baseline version of boid movement, add OpenMP framework (CPU) as initial parallel implementation. 
+#### Week 2: 4/3 - 4/8     Implement sequential/baseline version of boid movement, add OpenMP framework (CPU) as initial parallel implementation. 
 
 
-4/11	                Milestone Report
+#### 4/11	                Milestone Report
 
 
-Week 3: 4/11 - 4/15	  
+#### Week 3: 4/11 - 4/15	  
 
 Haley - Parallelize the current sequential program using different parallel framework (CUDA). 
 
 Claire - Spend half the week to update the sequential program with more fluid boid movement, adding and refining possible rules and parameters. Then around 4/14, work on the parallelization with Haley. 
 
 
-Week 4: 4/18 - 4/22	  Optimize the parallel implementation, conduct experiments and analysis on communication models.
+#### Week 4: 4/18 - 4/22	  Optimize the parallel implementation, conduct experiments and analysis on communication models.
 
 Haley - Experiment with different frameworks for optimizing neighbor determination/communication. 
                       
 Claire - Experiment with different work distributions and the parameters associated with boid movement.
 
 
-Week 5: 4/25 - 4/29	  Create visualization, write project report and prepare for poster session.
+#### Week 5: 4/25 - 4/29	  Create visualization, write project report and prepare for poster session.
 
 Haley - First half: Create a visualization using OpenGL/GLUT. 
 
@@ -105,10 +105,10 @@ Claire - First half: Run final tests and collect information for report/poster.
 Claire - Second half: Write project report and work on poster.
 
 
-4/29                  Final Report
+#### 4/29                  Final Report
 
 
-5/5                   Poster Session
+#### 5/5                   Poster Session
 
 
 
