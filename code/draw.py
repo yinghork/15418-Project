@@ -21,7 +21,7 @@ while(True):
         for i,row in enumerate(f):
             
             if(i != 0):
-                values = [int(s) for s in row.split()]
+                values = [float(s) for s in row.split()]
                 X.append(values[0])
                 Y.append(values[1])
 

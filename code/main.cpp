@@ -5,7 +5,7 @@
 #include <cstring>
 #include <omp.h>
 
-#include "boids.h"
+#include "cudaBoids.h"
 #include "seqBoids.h"
 
 static int _argc;
@@ -37,8 +37,35 @@ static void show_help(const char *program_path) {
     printf("\n");
     printf("OPTIONS:\n");
     printf("\t-f <input_filename> (required)\n");
-    printf("\t-n <num_of_threads> (required)\n");
+    printf("\t-r <seq/cuda>\n");
+    printf("\t-n <num_of_threads>\n");
     printf("\t-i <SA_iters>\n");
+}
+
+void writeOutput(Image *image, int iter){
+    char filename[1024];
+    sprintf(filename, "./output/%s_%d.txt", "framePositions", iter);
+
+    FILE *fp = fopen(filename, "w");
+    if (!fp) {
+        fprintf(stderr, "Error: could not open %s for write\n", filename);
+        exit(1);
+    }
+
+    group_t *group = image->data;
+    int num_boids = group->count;
+    boid_t *boids = group->boids;
+
+    fprintf(fp, "%d %d\n", image->width, image->height);
+
+    for (int i = 0; i < num_boids; i++) {
+        fprintf(fp, "%lf %lf", boids[i].position.x, boids[i].position.y);
+        if (i != num_boids - 1)
+           fprintf(fp, "\n");
+    }
+
+    fclose(fp);
+    printf("Wrote boids frame file %s\n", filename);
 }
 
 int main(int argc, const char *argv[]) {
@@ -49,6 +76,7 @@ int main(int argc, const char *argv[]) {
     _argc = argc - 1;
     _argv = argv + 1;
 
+    const char *algorithm_name = get_option_string("-r", "seq");
     const char *input_filename = get_option_string("-f", NULL);
     int num_of_threads = get_option_int("-n", 1);
     int SA_iters = get_option_int("-i", 5);
@@ -65,19 +93,27 @@ int main(int argc, const char *argv[]) {
         return 1;
     }
 
+    bool useCudaAlgorithm = (strcmp(algorithm_name, "cuda") == 0);
+    
     printf("Number of threads: %d\n", num_of_threads);
     printf("Number of simulated annealing iterations: %d\n", SA_iters);
     printf("Input file: %s\n", input_filename);
+    printf("Algorithm in use: %s\n", algorithm_name);
 
     /* Run the boids algorithm */
 
-    Boids *boidsAlgorithm = new SeqBoids();
+    Boids *boidsAlgorithm;
+    if (useCudaAlgorithm)
+        boidsAlgorithm = new CudaBoids();
+    else
+        boidsAlgorithm = new SeqBoids();
 
     // Load the initial state of the scene from the input file
     boidsAlgorithm->setup(input_filename);
 
     // Output the first frame of animation (initial state)
-    boidsAlgorithm->output(0);
+    Image *image = boidsAlgorithm->output();
+    writeOutput(image, 0);
 
     double compute_time = 0;
 
@@ -90,7 +126,8 @@ int main(int argc, const char *argv[]) {
         compute_time += duration_cast<dsec>(Clock::now() - compute_start).count();
         
         // Output the next frame of the animation
-        boidsAlgorithm->output(iter);
+        image = boidsAlgorithm->output();
+        writeOutput(image, iter);
     }
 
     printf("Computation Time: %lf.\n", compute_time);

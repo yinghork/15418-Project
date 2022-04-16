@@ -8,23 +8,25 @@
 #include "seqBoids.h"
 
 /* Global variables */
-
-int *dim_x;
-int *dim_y;
-group_t* boid_group;
+Image *image;
+group_t *boid_group;
 
 SeqBoids::SeqBoids() {
     // Initialize local variables
-    dim_x = NULL;
-    dim_y = NULL;
+    image = NULL;
     boid_group = NULL;
 }
 
 SeqBoids::~SeqBoids() {
     // Free data structures
+    delete image;
 }
 
 /* Boids Code */
+
+static int dist(boid_t b1, boid_t b2) {
+    return abs(b1.position.x - b2.position.x) + abs(b1.position.y - b2.position.y);
+}
 
 static pos_t flock_center_rule(group_t* group, int own_i){
     boid_t* boids = group->boids;
@@ -32,25 +34,21 @@ static pos_t flock_center_rule(group_t* group, int own_i){
     center.x = 0;
     center.y = 0;
 
-    for(int i = 0; i< group->size; i++){
+    for(int i = 0; i< group->count; i++){
         if(i != own_i){
             center.x += boids[i].position.x;
             center.y += boids[i].position.y;
         }
     }
     
-    center.x /= (group->size - 1);
-    center.y /= (group->size - 1);
+    center.x /= (group->count - 1);
+    center.y /= (group->count - 1);
     
     // 0.5% towards the percieved center
     pos_t new_pos;
     new_pos.x = (center.x - boids[own_i].position.x) / 200;
     new_pos.y = (center.y - boids[own_i].position.y) / 200;
     return new_pos;
-}
-
-static int dist(boid_t b1, boid_t b2) {
-    return abs(b1.position.x - b2.position.x) + abs(b1.position.y - b2.position.y);
 }
 
 static pos_t collision_avoidance_rule(group_t* group, int own_i){
@@ -60,7 +58,7 @@ static pos_t collision_avoidance_rule(group_t* group, int own_i){
     result.x = 0;
     result.y = 0;
 
-    for(int i = 0; i< group->size; i++){
+    for(int i = 0; i< group->count; i++){
         if(i != own_i){
             if(dist(boids[i], boids[own_i]) < distance){
                 result.x -= (boids[i].position.x - boids[own_i].position.x);
@@ -79,22 +77,21 @@ static vel_t velocity_matching_rule(group_t* group, int own_i){
     result.x = 0;
     result.y = 0;
 
-    for(int i = 0; i< group->size; i++){
+    for(int i = 0; i< group->count; i++){
         if(i != own_i){
             result.x += boids[i].velocity.x;
             result.y += boids[i].velocity.y;
         }
     }
 
-    result.x /= (group->size - 1);
-    result.y /= (group->size - 1);
+    result.x /= (group->count - 1);
+    result.y /= (group->count - 1);
     
     // 10% towards the average velocity 
     vel_t new_vel;
     new_vel.x = (result.x - boids[own_i].velocity.x) / 10;
     new_vel.y = (result.y - boids[own_i].velocity.y) / 10;
     return new_vel;
-
 }
 
 static pos_t leader_following_rule(group_t* group, int own_i, pos_t center, int leader){
@@ -179,10 +176,12 @@ static void update_boid_pos(group_t* group, int own_i) {
     boids[own_i].position.y += boids[own_i].velocity.y; 
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
 /* Update function */
 void SeqBoids::updateScene() {
     // For sequential, we just iterate over all boids in order
-    int count = boid_group->size;
+    int count = boid_group->count;
     for (int i = 0; i < count; i++) {
         update_boid_pos(boid_group, i);
     }
@@ -197,18 +196,23 @@ void SeqBoids::setup(const char *inputFile) {
         return;
     }
 
-    dim_x = (int *)calloc(1, sizeof(int));
-    dim_y = (int *)calloc(1, sizeof(int));
+    int dim_x;
+    int dim_y;
+    fscanf(input, "%d %d\n", &dim_x, &dim_y);
+    
+    image = new Image(dim_x, dim_y);
+   
     int num_of_boids;
-
-    fscanf(input, "%d %d\n", dim_x, dim_y);
     fscanf(input, "%d\n", &num_of_boids);
 
     // Allocate mem for the boids
-    boid_group = (group_t*)malloc(sizeof(group_t));
+    image->data = (group_t*)malloc(sizeof(group_t));
+    
+    boid_group = image->data;
+    boid_group->count = num_of_boids;
+    
     boid_t *boids = (boid_t *)calloc(num_of_boids, sizeof(boid_t));
     boid_group->boids = boids;
-    boid_group->size = num_of_boids;
     
     /* Read the grid dimension and boid information from file */
     
@@ -222,32 +226,7 @@ void SeqBoids::setup(const char *inputFile) {
 }
 
 /* Output function */
-void writeOutput(group_t* group, int iter, int dim_x, int dim_y){
-
-    char filename[1024];
-    sprintf(filename, "./output/%s_%d.txt", "framePositions", iter);
-
-    FILE *fp = fopen(filename, "w");
-    if (!fp) {
-        fprintf(stderr, "Error: could not open %s for write\n", filename);
-        exit(1);
-    }
-
-    boid_t* boids = group->boids;
-    int num_boids = group->size;
-
-    fprintf(fp, "%d %d\n", dim_x, dim_y);
-
-    for (int i = 0; i < num_boids; i++) {
-        fprintf(fp, "%d %d", boids[i].position.x, boids[i].position.y);
-        if (i != num_boids - 1)
-           fprintf(fp, "\n");
-    }
-
-    fclose(fp);
-    printf("Wrote boids frame file %s\n", filename);
-}
-
-void SeqBoids::output(int iter) {
-    writeOutput(boid_group, iter, *dim_x, *dim_y);
+Image *SeqBoids::output() {
+    // Already the data that we're operating on
+    return image;
 }

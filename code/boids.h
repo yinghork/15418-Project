@@ -24,14 +24,16 @@ typedef enum {
 } SceneName;
 */
 
+/* Structs used to define the boids.
+ * A boid consists of its position and velocity in 2d space. */
 typedef struct {
-    int x;
-    int y;
+    float x;
+    float y;
 } pos_t;
 
 typedef struct {
-    int x;
-    int y;
+    float x;
+    float y;
 } vel_t;
 
 typedef struct {
@@ -40,20 +42,33 @@ typedef struct {
 } boid_t;
 
 typedef struct {
+    int count;
     boid_t *boids;
-    int size = 0;
 } group_t;
 
+/* Struct which defines the data structure which holds output */
+struct Image {
+
+    Image(int w, int h) {
+        width = w;
+        height = h;
+        data = NULL;
+    }
+
+    int width;
+    int height;
+    group_t *data;
+};
 
 class Boids {
   public:
     virtual ~Boids(){};
 
-    virtual void setup(const char* inputName) = 0;
+    virtual void setup(const char *inputName) = 0;
 
     virtual void updateScene() = 0;
 
-    virtual void output(int frame) = 0;
+    virtual Image *output() = 0;
 
     //virtual const Image *getImage() = 0;
 

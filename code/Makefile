@@ -26,7 +26,7 @@ LDFRAMEWORKS := $(addprefix -framework , $(FRAMEWORKS))
 
 NVCC=nvcc
 
-OBJS=$(OBJDIR)/main.o $(OBJDIR)/seqBoids.o
+OBJS=$(OBJDIR)/main.o $(OBJDIR)/seqBoids.o $(OBJDIR)/cudaBoids.o
 
 
 .PHONY: dirs clean

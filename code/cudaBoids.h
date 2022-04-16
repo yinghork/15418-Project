@@ -8,9 +8,13 @@
 #include "boids.h"
 
 class CudaBoids : public Boids {
-  /*
+
   private:
-    Image *image;
+    Image *image; 
+    int boidCount;
+    boid_t *cudaDeviceBoidData;
+
+  /*
     SceneName sceneName;
 
     int numberOfCircles;
@@ -29,11 +33,11 @@ class CudaBoids : public Boids {
     CudaBoids();
     virtual ~CudaBoids();
     
-    virtual void setup(const char* inputName) = 0;
+    void setup(const char* inputName);
 
-    virtual void updateScene() = 0;
+    void updateScene();
 
-    virtual void output(int frame) = 0;
+    Image *output();
 
     //const Image *getImage();
 
