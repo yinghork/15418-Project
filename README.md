@@ -71,41 +71,58 @@ We will be using the GHC machines for development, testing, and experiments, bec
 
 ### SCHEDULE
 
-Week 1: 3/28 - 4/1	  Research about boids and boid movement algorithms.
-
-Week 2: 4/3 - 4/8	    Implement sequential/baseline version of boid movement, add OpenMP framework (CPU) as initial parallel implementation. 
-
-4/11	                Milestone Report
-
-Week 3: 4/11 - 4/15	  Parallelize the sequential program using different parallel framework (CUDA/GPU). 
-
-Week 4: 4/18 - 4/22	  Optimize the parallel implementation, conduct experiments and analysis on different parallel frameworks and communication models.
-
-Week 5: 4/25 - 4/29	  Create visualization, write project report and prepare for poster session.
-
-4/29                  Final Report
-
-5/5                   Poster Session
+#### Week 1: 3/28 - 4/1	  Research about boids and boid movement algorithms.
 
 
+#### Week 2: 4/3 - 4/8     Implement sequential/baseline version of boid movement, add OpenMP framework (CPU) as initial parallel implementation. 
 
-The milestone exists is to give you a deadline approximately halfway through the project. The following are suggestions for information to include in your milestone write-up. Your goal in the writeup is to assure the course staff (and yourself) that your project is proceeding as you said it would in your proposal. If it is not, your milestone writeup should emphasize what has been causing you problems, and provide an adjusted schedule and adjusted goals. As projects differ, not all items in the list below are relevant to all projects.
-Make sure your project schedule on your main project page is up to date with work completed so far, and well as with a revised plan of work for the coming weeks. As by this time you should have a good understanding of what is required to complete your project, I want to see a very detailed schedule for the coming weeks. I suggest breaking time down into half-week increments. Each increment should have at least one task, and for each task put a personâ€™s name on it.
+
+#### 4/11	                Milestone Report
+
+
+#### Week 3: 4/11 - 4/15	  
+
+Haley - Parallelize the current sequential program using different parallel framework (CUDA). 
+
+Claire - Spend half the week to update the sequential program with more fluid boid movement, adding and refining possible rules and parameters. Then around 4/14, work on the parallelization with Haley. 
+
+
+#### Week 4: 4/18 - 4/22	  Optimize the parallel implementation, conduct experiments and analysis on communication models.
+
+Haley - Experiment with different frameworks for optimizing neighbor determination/communication. 
+                      
+Claire - Experiment with different work distributions and the parameters associated with boid movement.
+
+
+#### Week 5: 4/25 - 4/29	  Create visualization, write project report and prepare for poster session.
+
+Haley - First half: Create a visualization using OpenGL/GLUT. 
+
+Haley - Second half: Write project report and work on poster.
+
+Claire - First half: Run final tests and collect information for report/poster.
+
+Claire - Second half: Write project report and work on poster.
+
+
+#### 4/29                  Final Report
+
+
+#### 5/5                   Poster Session
+
+
 
 ### MILESTONE
 
-In one to two paragraphs, summarize the work that you have completed so far. (This should be easy if you have been maintaining this information on your project page.)
-
-We wrote a sequential version of the boid algorithm, complete with flock centering, neighbor collision avoidance, velocity matching, leader following, and box bound following rules. We apply these rules to each boid, to compute the next location of each boid. We store these locations at each time step, or frame, in output files of the form "framePositions_i.txt" where i is the time step from 0 to x. We also wrote a python script to parse these output files and render each time step sequentially, to observe the general movement of the boid group over frames. This is a basic implementation of the animation of boid movement, which we are using to judge the quality of the boid algorithm output. 
+We wrote a sequential version of the boid algorithm, complete with flock centering, neighbor collision avoidance, velocity matching, leader following, and box bound following rules. We apply these rules to each boid, to compute the next location of each boid. We store these locations at each time step, or frame, in output files of the form "framePositions_i.txt" where i is the time step from 0 to x. We also wrote a python script to parse these output files and render each time step sequentially, to observe the general movement of the boid group over frames. This is a basic implementation of the animation of boid movement, which we are using to judge the quality of the boid algorithm output. We have created a project framework for the CUDA implementation, so that we can complete an initial CUDA implementation by the end of the week.
 
 
-Describe how you are doing with respect to the goals and deliverables stated in your proposal. Do you still believe you will be able to produce all your deliverables? If not, why? What about the nice to haves? In your milestone writeup we want an updated list of goals that you plan to hit for the poster session.
+After meeting with our assigned TA and receiving advice, we re-assessed our original goals; rather than creating both an OpenMP and CUDA implementation, we will only be focusing on our CUDA implementation. Beyond that, our planned deliverables for the CUDA implementation are still the same. If things go well, we hope to create a better visualization/animation representation of the boid simulation, otherwise we will use our current base rendering. If things move slowly, we may have a CUDA version with minimal speedup, and will instead focus on analyzing what challenges and bottlenecks prevented us from being able to achieve better speedup, without animated visualization.
 
 
-What do you plan to show at the poster session? Will it be a demo? Will it be a graph?
+For the demo and final report, we plan to show speedup graphs to demonstrate the improved performance of our CUDA implementation, focusing on reducing computation time for a fixed problem size. We will also have a demo animation which represents the output of our algorithm. If time permits, we will expand on this animation, but otherwise, we will stay with our existing python script, which renders each frame from the output files generated by our algorithm.
 
 
-Do you have preliminary results at this time? If so, it would be great to included them in your milestone write-up.
+As of now, we do not have any major concerns about the project. It is a matter of executing our plan, as we have the resources needed to do so. 
 
 
-List the issues that concern you the most. Are there any remaining unknowns (things you simply don't know how to solve, or resource you don't know how to get) or is it just a matter of coding and doing the work? If you do not wish to put this information on a public web site you are welcome to email the staff directly.
