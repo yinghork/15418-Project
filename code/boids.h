@@ -48,13 +48,6 @@ typedef struct {
 
 /* Struct which defines the data structure which holds output */
 struct Image {
-
-    Image(int w, int h) {
-        width = w;
-        height = h;
-        data = NULL;
-    }
-
     int width;
     int height;
     group_t *data;
