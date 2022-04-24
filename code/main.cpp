@@ -65,7 +65,7 @@ void writeOutput(Image *image, int iter){
     }
 
     fclose(fp);
-    printf("Wrote boids frame file %s\n", filename);
+    // printf("Wrote boids frame file %s\n", filename);
 }
 
 int main(int argc, const char *argv[]) {
@@ -103,13 +103,15 @@ int main(int argc, const char *argv[]) {
     /* Run the boids algorithm */
 
     Boids *boidsAlgorithm;
-    if (useCudaAlgorithm)
-        boidsAlgorithm = new CudaBoids();
+    if (useCudaAlgorithm){
+        // boidsAlgorithm = new CudaBoids();
+        boidsAlgorithm = new SeqBoids();
+    }
     else
         boidsAlgorithm = new SeqBoids();
 
     // Load the initial state of the scene from the input file
-    boidsAlgorithm->setup(input_filename);
+    boidsAlgorithm->setup(input_filename, num_of_threads);
 
     // Output the first frame of animation (initial state)
     Image *image = boidsAlgorithm->output();
@@ -130,7 +132,8 @@ int main(int argc, const char *argv[]) {
         writeOutput(image, iter);
     }
 
-    printf("Computation Time: %lf.\n", compute_time);
+    printf("Total computation Time (ms): %lf.\n", compute_time * 1000);
+    printf("Per iter computation Time (ms): %lf.\n", compute_time/SA_iters * 1000);
 
     return 0;
 }

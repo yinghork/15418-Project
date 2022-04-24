@@ -1,3 +1,5 @@
+#include "variable_queue.h"
+
 #ifndef __BOIDS_H__
 #define __BOIDS_H__
 
@@ -24,6 +26,9 @@ typedef enum {
 } SceneName;
 */
 
+// list of boids
+Q_NEW_HEAD(boid_list_t, boid);
+
 /* Structs used to define the boids.
  * A boid consists of its position and velocity in 2d space. */
 typedef struct {
@@ -36,9 +41,15 @@ typedef struct {
     float y;
 } vel_t;
 
-typedef struct {
+typedef struct boid {
     pos_t position;
     vel_t velocity;
+
+    int index;
+    int grid_x;
+    int grid_y;
+    Q_NEW_LINK(boid) grid_link;
+
 } boid_t;
 
 typedef struct {
@@ -57,7 +68,7 @@ class Boids {
   public:
     virtual ~Boids(){};
 
-    virtual void setup(const char *inputName) = 0;
+    virtual void setup(const char *inputName, int num_of_threads) = 0;
 
     virtual void updateScene() = 0;
 

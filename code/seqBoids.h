@@ -20,7 +20,7 @@ class SeqBoids : public Boids {
 
     virtual ~SeqBoids();
     
-    void setup(const char* inputName);
+    void setup(const char* inputName, int num_of_threads);
 
     void updateScene();
 

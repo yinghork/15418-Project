@@ -7,9 +7,9 @@ except OSError:
 
 with f:
 
-    num_boids = 200
-    x = 500
-    y = 500
+    num_boids = 1000
+    x = 2000
+    y = 2000
 
     f.write((str(x) + " " + str(y)).encode())
     f.write("\n".encode())
