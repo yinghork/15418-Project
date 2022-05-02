@@ -52,11 +52,10 @@ void writeOutput(Image *image, int iter){
         exit(1);
     }
 
-    group_t *group = image->data;
-    int num_boids = group->count;
-    boid_t *boids = group->boids;
-
     fprintf(fp, "%d %d\n", image->width, image->height);
+
+    int num_boids = image->data->count;
+    boid_t *boids = image->data->boids;
 
     for (int i = 0; i < num_boids; i++) {
         fprintf(fp, "%lf %lf", boids[i].position.x, boids[i].position.y);
@@ -65,7 +64,7 @@ void writeOutput(Image *image, int iter){
     }
 
     fclose(fp);
-    // printf("Wrote boids frame file %s\n", filename);
+    printf("Wrote boids frame file %s\n", filename);
 }
 
 int main(int argc, const char *argv[]) {
@@ -104,8 +103,7 @@ int main(int argc, const char *argv[]) {
 
     Boids *boidsAlgorithm;
     if (useCudaAlgorithm){
-        // boidsAlgorithm = new CudaBoids();
-        boidsAlgorithm = new SeqBoids();
+        boidsAlgorithm = new CudaBoids();
     }
     else
         boidsAlgorithm = new SeqBoids();

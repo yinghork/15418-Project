@@ -17,6 +17,8 @@ while(True):
         f = open("./output/framePositions_" + str(iter) + ".txt",'r')
     except OSError:
         break
+    except Exception:
+        break
 
     with f:
         
@@ -59,10 +61,10 @@ def animate(timestep):
 
     # ax.clear()
 
-    # # replot 
+    # replot
     # line = ax.scatter(x, y, c = colors)
     return line,
 
-ani = FuncAnimation(fig, animate, frames=len(X), interval=50, blit=True, repeat=False)
+ani = FuncAnimation(fig, animate, frames=len(X), interval=50, blit=False, repeat=True)
 
 plt.show()

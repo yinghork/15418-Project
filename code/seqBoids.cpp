@@ -3,7 +3,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <omp.h>
+//#include <omp.h>
 #include <math.h>
 #include <algorithm>
 
@@ -428,7 +428,7 @@ void SeqBoids::updateScene() {
     // For sequential, we just iterate over all boids in order
     int boidCount = boid_group->count;
     int i;
-    #pragma omp parallel for default(shared) private(i) shared(costs) schedule(dynamic)
+    //#pragma omp parallel for default(shared) private(i) shared(costs) schedule(dynamic)
     for (i = 0; i < boidCount; i++) {
         update_boid(i, deltaT, e, s, k, m, l, image, lead);
     }
@@ -440,7 +440,7 @@ void SeqBoids::updateScene() {
 /* Input function */
 void SeqBoids::setup(const char *inputFile, int num_of_threads) {
 
-    omp_set_num_threads(num_of_threads);
+    //omp_set_num_threads(num_of_threads);
 
     FILE *input = fopen(inputFile, "r");
 

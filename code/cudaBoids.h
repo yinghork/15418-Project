@@ -12,28 +12,14 @@ class CudaBoids : public Boids {
   private:
     Image *image; 
     int boidCount;
-    boid_t *cudaDeviceBoidData;
-
-  /*
-    SceneName sceneName;
-
-    int numberOfCircles;
-    float *position;
-    float *velocity;
-    float *color;
-    float *radius;
-
-    float *cudaDevicePosition;
-    float *cudaDeviceVelocity;
-    float *cudaDeviceColor;
-    float *cudaDeviceRadius;
-    float *cudaDeviceImageData;
-  */
+    boid_t *deviceInData;
+    boid_t *deviceOutData;
+ 
   public:
     CudaBoids();
     virtual ~CudaBoids();
     
-    void setup(const char* inputName);
+    void setup(const char* inputName, int num_of_threads);
 
     void updateScene();
 
