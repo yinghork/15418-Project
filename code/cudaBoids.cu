@@ -139,28 +139,31 @@ __device__ __inline__ float2 calculate_move(int i) {
     float2 pos = toFloat2(inData[i].position);
     float2 vel = toFloat2(inData[i].velocity);
    
-    float2 move = make_float2(0.f, 0.f);
+    float2 accel = make_float2(0.f, 0.f);
     
     // Extra force (indep of neighbors) to stay on screen
-    float2 ceMove = make_float2(0.f, 0.f);
+    float2 centeringForce = make_float2(0.f, 0.f);
 
     float2 centerOffset = -pos;
     float t = sqrMagnitude(centerOffset) / cuDataParams.imageWidth;
 
     // t = 0 when at center, 1 if at edge, so start applying when 90% to edge
-    if (t > 0.81f) {
-        ceMove *= t * t;
+    if (t > 0.9f) {
+        centeringForce = centerOffset * t * t;
     }
 
     float c = cuFlockParams.centeringWeight;
-    if (sqrMagnitude(ceMove) > c * c) {
-        ceMove = normalize(ceMove);
-        ceMove *= c;
+    if (sqrMagnitude(centeringForce) > c * c) {
+        centeringForce = normalize(centeringForce);
+        centeringForce *= c;
     }
  
-    float2 coMove = make_float2(0.f, 0.f);
-    float2 alMove = make_float2(0.f, 0.f);
-    float2 seMove = make_float2(0.f, 0.f);
+    float2 cohesionForce = make_float2(0.f, 0.f);
+    float2 alignmentForce = make_float2(0.f, 0.f);
+    float2 separationForce = make_float2(0.f, 0.f);
+
+    float2 averagePosition = make_float2(0.f, 0.f);
+    float2 averageVelocity = make_float2(0.f, 0.f);
 
     int neighborCount = 0;
     int separateCount = 0;
@@ -176,16 +179,21 @@ __device__ __inline__ float2 calculate_move(int i) {
                 neighborCount++;
 
                 // (Coherence) accumulate positions
-                coMove += otherPos;
+                averagePosition += otherPos;
                 
                 // (Alignment) accumulate velocities
-                alMove += toFloat2(otherBoid.velocity);
+                averageVelocity += toFloat2(otherBoid.velocity);
                 
                 if (dist < cuFlockParams.squareAvoidanceRadius) {
                     separateCount++;
+                    
+                    // (Separation) accumulate weighted position offset
+                    float2 offsetForce = pos - otherPos;
+                    // Normalize and scale by distance (closest have most effect)
+                    //offsetForce = normalize(offsetForce);
+                    //offsetForce /= dist;
 
-                    // (Separation) accumulate position offset
-                    seMove += (pos - otherPos);
+                    separationForce += offsetForce;
                 }
             }
         }
@@ -193,62 +201,63 @@ __device__ __inline__ float2 calculate_move(int i) {
     
     // If there are no neighbors, maintain velocity & apply centering
     if (neighborCount == 0) {
-        move = vel + ceMove;
-        return move;
+        accel = centeringForce;
+        // accel = vel + centeringForce;
+        return accel;
     }
     
     // Average the forces
     if (neighborCount > 0) {
-        coMove /= neighborCount;
-        alMove /= neighborCount;
+        averagePosition /= neighborCount;
+        averageVelocity /= neighborCount;
     }
     if (separateCount > 0) {
-        seMove /= separateCount;
+        separationForce /= separateCount;
     }
 
-    // Convert cohesion to an offset from current position
-    coMove -= pos;
-    // Convert alignment to offset from current velocity
-    alMove -= vel;
+    // Cohesion force is average position offset from current position
+    cohesionForce = averagePosition - pos;
+    // Alignment force is average velocity offset from current velocity
+    alignmentForce = averageVelocity - vel;
 
     /* Weigh and combine the forces */
     float k = cuFlockParams.cohesionWeight;
     float m = cuFlockParams.alignmentWeight;
     float s = cuFlockParams.separationWeight;
 
-    coMove *= k;
-    alMove *= m;
-    seMove *= s;
+    cohesionForce *= k;
+    alignmentForce *= m;
+    separationForce *= s;
 
-    // Start combining forces
-    if (sqrMagnitude(coMove) > k * k) {
-        coMove = normalize(coMove);
-        coMove *= k;
+    if (sqrMagnitude(cohesionForce) > k * k) {
+        cohesionForce = normalize(cohesionForce);
+        cohesionForce *= k;
     }
-    if (sqrMagnitude(alMove) > m * m) {
-        alMove = normalize(alMove);
-        alMove *= m;
+    if (sqrMagnitude(alignmentForce) > m * m) {
+        alignmentForce = normalize(alignmentForce);
+        alignmentForce *= m;
     }
-    if (sqrMagnitude(seMove) > s * s) {
-        seMove = normalize(seMove);
-        seMove *= s;
+    if (sqrMagnitude(separationForce) > s * s) {
+        separationForce = normalize(separationForce);
+        separationForce *= s;
     }
 
-    move += coMove + alMove + seMove + ceMove;
+    accel = cohesionForce + alignmentForce + separationForce + centeringForce;
    
     /* 
     if (i != 0)
-        return move;
+        return accel;
 
-    printf("Boid %d has move %lf %lf: cohere %lf %lf, align %lf %lf, avoid %lf %lf, center %lf %lf.\n",
-            i, move.x, move.y, coMove.x, coMove.y, alMove.x, alMove.y, seMove.x, seMove.y, ceMove.x, ceMove.y);
-    printf("Boid %d had %d boids in neighborhood of %lf and %d boids in avoid radius of %lf.\n",
+    printf("Boid %d has accel %lf %lf: cohesion %lf %lf, align %lf %lf, separate %lf %lf, center %lf %lf.\n",
+            i, accel.x, accel.y, cohesionForce.x, cohesionForce.y, alignmentForce.x, alignmentForce.y,
+            separationForce.x, separationForce.y, centeringForce.x, centeringForce.y);
+    printf("Boid %d had %d boids in neighbor radius2 of %lf and %d boids in avoid radius2 of %lf.\n",
             i, neighborCount, cuFlockParams.squareNeighborRadius,
             separateCount, cuFlockParams.squareAvoidanceRadius);
     */
 
-    /* Return the resulting composition move */
-    return move;
+    /* Return the resulting acceleration (for this frame) */
+    return accel;
 }
 
 __global__ void moveBoids() {
@@ -259,22 +268,31 @@ __global__ void moveBoids() {
         return;
 
     /* Calculate the combined steers from all forces */
-    float2 move = calculate_move(i);
+    float2 accel = calculate_move(i);
     
     // scale by drive factor
-    move *= cuFlockParams.driveFactor;
+    accel *= cuFlockParams.driveFactor;
 
     // cap at max speed
-    if (sqrMagnitude(move) > cuFlockParams.squareMaxSpeed) {
-        move = normalize(move);
-        move *= cuFlockParams.maxSpeed;
+    if (sqrMagnitude(accel) > cuFlockParams.squareMaxSpeed) {
+        accel = normalize(accel);
+        accel *= cuFlockParams.maxSpeed;
     }
 
     /* Apply the steers to move position */
-    float2 newVelocity = toFloat2(cuDataParams.inData[i].velocity);
-    newVelocity += move;
+    float2 oldVelocity = toFloat2(cuDataParams.inData[i].velocity);
+    float2 newVelocity = oldVelocity + accel;
+
     float2 oldPosition = toFloat2(cuDataParams.inData[i].position);
     float2 newPosition = oldPosition + newVelocity;
+
+    /*
+    if (i == 0) {
+        printf("Boid %d old pos %lf %lf vel %lf %lf, update to pos %lf %lf vel %lf %lf.\n",
+                i, oldPosition.x, oldPosition.y, oldVelocity.x, oldVelocity.y,
+                newPosition.x, newPosition.y, newVelocity.x, newVelocity.y);
+    }
+    */
 
     cuDataParams.outData[i].velocity = toVel(newVelocity);
     cuDataParams.outData[i].position = toPos(newPosition);
@@ -458,17 +476,17 @@ void CudaBoids::setup(const char *inputName, int num_of_threads) {
 
     GlobalFlockConstants flockParams;
     //flockParams.driveFactor = 10.f;
-    flockParams.driveFactor = 10.f;
+    flockParams.driveFactor = 2.f;
     //flockParams.maxSpeed = 5.f;
-    flockParams.maxSpeed = 5.f;
+    flockParams.maxSpeed = 15.f;
     flockParams.squareMaxSpeed = flockParams.maxSpeed * flockParams.maxSpeed;
     //flockParams.squareNeighborRadius = 1.5f * 1.5f;
-    flockParams.squareNeighborRadius = 75.f * 75.f;
-    flockParams.squareAvoidanceRadius = flockParams.squareNeighborRadius * 0.5f * 0.5f;
+    flockParams.squareNeighborRadius = 80.f * 80.f;
+    flockParams.squareAvoidanceRadius = flockParams.squareNeighborRadius * 0.75f * 0.75f;
     flockParams.cohesionWeight = 1.f;
     flockParams.alignmentWeight = 1.f;
     flockParams.separationWeight = 1.f;
-    flockParams.centeringWeight = 0.1f;
+    flockParams.centeringWeight = 0.05f;
 
     cudaMemcpyToSymbol(cuFlockParams, &flockParams, sizeof(GlobalFlockConstants));
  
