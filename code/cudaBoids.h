@@ -10,10 +10,11 @@
 class CudaBoids : public Boids {
 
   private:
-    Image *image; 
+    Image *image;
+    float4 *hostData;
     int boidCount;
-    boid_t *deviceInData;
-    boid_t *deviceOutData;
+    float4 *deviceInData;
+    float4 *deviceOutData;
  
   public:
     CudaBoids();
@@ -24,21 +25,6 @@ class CudaBoids : public Boids {
     void updateScene();
 
     Image *output();
-
-    //const Image *getImage();
-
-    //void setup();
-
-    //void loadScene(SceneName name);
-
-    //void allocOutputImage(int width, int height);
-
-    //void clearImage();
-
-    //void advanceAnimation();
-
-    //void shadePixel(float pixelCenterX, float pixelCenterY, float px, float py, float pz,
-    //                float *pixelData, int circleIndex);
 };
 
 #endif

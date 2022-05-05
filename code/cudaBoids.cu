@@ -20,8 +20,8 @@ struct GlobalDataConstants {
     int imageHeight;
 
     int boidCount;
-    boid_t *inData;
-    boid_t *outData;
+    float4 *inData;
+    float4 *outData;
 };
 
 struct GlobalFlockConstants {
@@ -41,14 +41,6 @@ __constant__ GlobalDataConstants cuDataParams;
 __constant__ GlobalFlockConstants cuFlockParams;
 
 ////////////////////////////////////////////////////////////////////////////////////////
-
-__global__ void copyFrame() {
-    int i = blockIdx.x * blockDim.x + threadIdx.x;
-    if (i >= cuDataParams.boidCount)
-        return;
-
-    cuDataParams.inData[i] = cuDataParams.outData[i];
-}
 
 // https://github.com/NVIDIA/cuda-samples/blob/master/Common/helper_math.h
 inline __host__ __device__ float2 operator-(float2 &a) {
@@ -91,30 +83,6 @@ inline __host__ __device__ void operator/=(float2 &a, float b) {
     a.y /= b;
 }
 
-
-// My helper functions
-__device__ __inline__ float2 toFloat2(pos_t pos) {
-    return make_float2(pos.x, pos.y);
-}
-
-__device__ __inline__ float2 toFloat2(vel_t vel) {
-    return make_float2(vel.x, vel.y);
-}
-
-__device__ __inline__ pos_t toPos(float2 f) {
-    pos_t pos;
-    pos.x = f.x;
-    pos.y = f.y;
-    return pos;
-}
-
-__device__ __inline__ vel_t toVel(float2 f) {
-    vel_t vel;
-    vel.x = f.x;
-    vel.y = f.y;
-    return vel;
-}
-
 // Float math helper functions
 __device__ __inline__ float sqrMagnitude(float2 f) {
     return f.x * f.x + f.y * f.y;
@@ -133,14 +101,18 @@ __device__ __inline__ float2 normalize(float2 f) {
 
 // Calculate all the steers to apply to the boid
 __device__ __inline__ float2 calculate_move(int i) {
+    // TODO: Consider moving into update method, for shared block mem?
+
     int boidCount = cuDataParams.boidCount;
     
-    boid_t *inData = cuDataParams.inData;
-    float2 pos = toFloat2(inData[i].position);
-    float2 vel = toFloat2(inData[i].velocity);
+    float4 *inData = cuDataParams.inData;
+    float4 data = inData[i];
+    float2 pos = make_float2(data.x, data.y);
+    float2 vel = make_float2(data.z, data.w);
    
     float2 accel = make_float2(0.f, 0.f);
     
+    // TODO: Do we keep the centering force? Leader following?
     // Extra force (indep of neighbors) to stay on screen
     float2 centeringForce = make_float2(0.f, 0.f);
 
@@ -158,6 +130,7 @@ __device__ __inline__ float2 calculate_move(int i) {
         centeringForce *= c;
     }
  
+    // Calculate the basic 3 forces
     float2 cohesionForce = make_float2(0.f, 0.f);
     float2 alignmentForce = make_float2(0.f, 0.f);
     float2 separationForce = make_float2(0.f, 0.f);
@@ -168,11 +141,13 @@ __device__ __inline__ float2 calculate_move(int i) {
     int neighborCount = 0;
     int separateCount = 0;
 
+    // TODO: Load a block of boids into shared mem
+
     /* Calculate each individual force */
     for (int j = 0; j < boidCount; j++) {
         if (i != j) {
-            boid_t otherBoid = inData[j];
-            float2 otherPos = toFloat2(otherBoid.position);
+            float4 otherBoid = inData[j];
+            float2 otherPos = make_float2(otherBoid.x, otherBoid.y);
             
             float dist = sqrDist(pos, otherPos);
             if (dist < cuFlockParams.squareNeighborRadius) {
@@ -182,7 +157,7 @@ __device__ __inline__ float2 calculate_move(int i) {
                 averagePosition += otherPos;
                 
                 // (Alignment) accumulate velocities
-                averageVelocity += toFloat2(otherBoid.velocity);
+                averageVelocity += make_float2(otherBoid.z, otherBoid.w);
                 
                 if (dist < cuFlockParams.squareAvoidanceRadius) {
                     separateCount++;
@@ -267,6 +242,9 @@ __global__ void moveBoids() {
     if (i >= boidCount)
         return;
 
+    // TODO: Load locally useful constants
+    // Load shared mem of these boids?
+
     /* Calculate the combined steers from all forces */
     float2 accel = calculate_move(i);
     
@@ -280,11 +258,17 @@ __global__ void moveBoids() {
     }
 
     /* Apply the steers to move position */
-    float2 oldVelocity = toFloat2(cuDataParams.inData[i].velocity);
+    // Format the global loads/stores as float4 for max efficiency
+    float4 oldData = cuDataParams.inData[i];
+    
+    float2 oldVelocity = make_float2(oldData.z, oldData.w);
     float2 newVelocity = oldVelocity + accel;
 
-    float2 oldPosition = toFloat2(cuDataParams.inData[i].position);
+    float2 oldPosition = make_float2(oldData.x, oldData.y);
     float2 newPosition = oldPosition + newVelocity;
+
+    float4 newData = make_float4(newPosition.x, newPosition.y, newVelocity.x, newVelocity.y);
+    cuDataParams.outData[i] = newData;
 
     /*
     if (i == 0) {
@@ -293,9 +277,14 @@ __global__ void moveBoids() {
                 newPosition.x, newPosition.y, newVelocity.x, newVelocity.y);
     }
     */
+}
 
-    cuDataParams.outData[i].velocity = toVel(newVelocity);
-    cuDataParams.outData[i].position = toPos(newPosition);
+__global__ void copyFrame() {
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (i >= cuDataParams.boidCount)
+        return;
+
+    cuDataParams.inData[i] = cuDataParams.outData[i];
 }
 
 __global__ void kernelPrint() {
@@ -304,12 +293,12 @@ __global__ void kernelPrint() {
     if (i >= cuDataParams.boidCount)
         return;
 
-    boid_t boid = cuDataParams.inData[i];
+    float4 boid = ((float4 *)cuDataParams.inData)[i];
     printf("boid %d indata is %lf %lf %lf %lf\n", i,
-            boid.position.x, boid.position.y, boid.velocity.x, boid.velocity.y);
-    boid = cuDataParams.outData[i];
+            boid.x, boid.y, boid.z, boid.w);
+    boid = ((float4 *)cuDataParams.outData)[i];
     printf("boid %d outdata is %lf %lf %lf %lf\n", i,
-            boid.position.x, boid.position.y, boid.velocity.x, boid.velocity.y);
+            boid.x, boid.y, boid.z, boid.w);
 
     if (i != 0)
         return;
@@ -327,20 +316,10 @@ __global__ void kernelPrint() {
     printf("imageHeight is %d\n", cuDataParams.imageHeight); 
 }
 
-__global__ void kernelPrintPrivate(boid_t *deviceData) {
-    int i = blockIdx.x * blockDim.x + threadIdx.x;
-    if (i != 0)
-        return;
-
-    printf("Device data:\n");
-    printf("first boid at data addr is %lf %lf %lf %lf\n",
-            deviceData[0].position.x, deviceData[0].position.y, 
-            deviceData[0].velocity.x, deviceData[0].velocity.y);
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////
 CudaBoids::CudaBoids() {
     image = NULL;
+    hostData = NULL;
     boidCount = 0;
     deviceInData = NULL;
     deviceOutData = NULL;
@@ -350,6 +329,7 @@ CudaBoids::~CudaBoids() {
     // Free allocated memory
     if (image) {
         delete image;
+        delete hostData;
     }
     
     if (deviceInData) {
@@ -362,13 +342,15 @@ void CudaBoids::updateScene() {
     dim3 blockDim(256, 1);
     dim3 gridDim((boidCount + blockDim.x - 1) / blockDim.x);
 
+    // Copy data from previous frame output to the input
+    // TODO: Should we just make this a memcpy if we aren't going to reorganize?
+    copyFrame<<<gridDim, blockDim>>>();
+    cudaDeviceSynchronize();
+
+    // Update the boids based on new input data
     moveBoids<<<gridDim, blockDim>>>();
     cudaDeviceSynchronize();
   
-    // Now that finished with input data, overwrite with output data for next frame
-    copyFrame<<<gridDim, blockDim>>>();
-    cudaDeviceSynchronize();
-   
     cudaError_t errCode = cudaPeekAtLastError();
     if (errCode != cudaSuccess) {
         fprintf(stderr, "WARNING: A CUDA Error Occurred: code=%d, %s\n", errCode, cudaGetErrorString(errCode));
@@ -376,16 +358,29 @@ void CudaBoids::updateScene() {
     cudaDeviceSynchronize();
 }
 
-Image *CudaBoids::output() {
-    // Need to copy memory from GPU to CPU before returning Image ptr
-    cudaMemcpy(image->data->boids, deviceOutData, sizeof(boid_t) * boidCount, cudaMemcpyDeviceToHost);
-
-    cudaError_t errCode = cudaPeekAtLastError();
-    if (errCode != cudaSuccess) {
-        fprintf(stderr, "WARNING: A CUDA Error Occurred: code=%d, %s\n", errCode, cudaGetErrorString(errCode));
+void copyBoidToFloat(boid_t *src, float4 *dst, int count) {
+    // Reformat boid's pos and vel as float4, then store
+    boid_t *boid;
+    float4 boidData;
+    for (int i = 0; i < count; i++) {
+        boid = &(src[i]);
+        boidData = make_float4(boid->position.x, boid->position.y, boid->velocity.x, boid->velocity.y);
+        dst[i] = boidData;
     }
+}
 
-    return image;
+void copyFloatToBoid(float4 *src, boid_t *dst, int count) {
+    // Extract float2 from float4 data and format for struct
+    boid_t *boid;
+    float4 boidData;
+    for (int i = 0; i < count; i++) {
+        boidData = src[i];
+        boid = &(dst[i]);
+        boid->position.x = boidData.x;
+        boid->position.y = boidData.y;
+        boid->velocity.x = boidData.z;
+        boid->velocity.y = boidData.w;
+    }
 }
 
 void CudaBoids::setup(const char *inputName, int num_of_threads) {
@@ -425,6 +420,10 @@ void CudaBoids::setup(const char *inputName, int num_of_threads) {
         image->data->boids[i].velocity.y = (rand() % 3) - 1.f;
     }
 
+    // Create the float4 formatted version of image data
+    hostData = (float4 *)calloc(num_of_boids, sizeof(float4));
+    copyBoidToFloat(image->data->boids, hostData, num_of_boids);
+
     // Next, setup the cuda device
     int deviceCount = 0;
     std::string name;
@@ -452,7 +451,7 @@ void CudaBoids::setup(const char *inputName, int num_of_threads) {
     cudaMalloc(&deviceInData, sizeof(boid_t) * boidCount);
     cudaMalloc(&deviceOutData, sizeof(boid_t) * boidCount);
     
-    cudaMemcpy(deviceInData, image->data->boids, sizeof(boid_t) * boidCount, cudaMemcpyHostToDevice);
+    cudaMemcpy(deviceOutData, hostData, sizeof(float4) * boidCount, cudaMemcpyHostToDevice);
 
     cudaError_t errCode = cudaPeekAtLastError();
     if (errCode != cudaSuccess) {
@@ -495,4 +494,19 @@ void CudaBoids::setup(const char *inputName, int num_of_threads) {
         fprintf(stderr, "WARNING: A CUDA Error Occurred: code=%d, %s\n", errCode, cudaGetErrorString(errCode));
     }
     cudaDeviceSynchronize();
+}
+
+Image *CudaBoids::output() {
+    // Copy memory from GPU to CPU
+    cudaMemcpy(hostData, deviceOutData, sizeof(float4) * boidCount, cudaMemcpyDeviceToHost);
+
+    cudaError_t errCode = cudaPeekAtLastError();
+    if (errCode != cudaSuccess) {
+        fprintf(stderr, "WARNING: A CUDA Error Occurred: code=%d, %s\n", errCode, cudaGetErrorString(errCode));
+    }
+
+    // Reformat float4 data as boid_t before returning Image ptr
+    copyFloatToBoid(hostData, image->data->boids, boidCount);
+
+    return image;
 }
