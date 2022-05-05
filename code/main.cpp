@@ -5,8 +5,9 @@
 #include <cstring>
 #include <omp.h>
 
-#include "cudaBoids.h"
 #include "seqBoids.h"
+#include "openmpBoids.h"
+#include "cudaBoids.h"
 
 static int _argc;
 static const char **_argv;
@@ -92,8 +93,6 @@ int main(int argc, const char *argv[]) {
         return 1;
     }
 
-    bool useCudaAlgorithm = (strcmp(algorithm_name, "cuda") == 0);
-    
     printf("Number of threads: %d\n", num_of_threads);
     printf("Number of simulated annealing iterations: %d\n", SA_iters);
     printf("Input file: %s\n", input_filename);
@@ -102,7 +101,10 @@ int main(int argc, const char *argv[]) {
     /* Run the boids algorithm */
 
     Boids *boidsAlgorithm;
-    if (useCudaAlgorithm){
+    if (strcmp(algorithm_name, "openmp") == 0){
+        boidsAlgorithm = new OpenmpBoids();
+    }
+    else if (strcmp(algorithm_name, "cuda") == 0) {
         boidsAlgorithm = new CudaBoids();
     }
     else

@@ -421,8 +421,8 @@ void CudaBoids::setup(const char *inputName, int num_of_threads) {
     }
 
     // Create the float4 formatted version of image data
-    hostData = (float4 *)calloc(num_of_boids, sizeof(float4));
-    copyBoidToFloat(image->data->boids, hostData, num_of_boids);
+    hostData = (float *)calloc(num_of_boids, sizeof(float4));
+    copyBoidToFloat(image->data->boids, (float4 *)hostData, num_of_boids);
 
     // Next, setup the cuda device
     int deviceCount = 0;
@@ -448,8 +448,8 @@ void CudaBoids::setup(const char *inputName, int num_of_threads) {
     // Copy/create necessary data on the GPU
     boidCount = image->data->count;
 
-    cudaMalloc(&deviceInData, sizeof(boid_t) * boidCount);
-    cudaMalloc(&deviceOutData, sizeof(boid_t) * boidCount);
+    cudaMalloc(&deviceInData, sizeof(float4) * boidCount);
+    cudaMalloc(&deviceOutData, sizeof(float4) * boidCount);
     
     cudaMemcpy(deviceOutData, hostData, sizeof(float4) * boidCount, cudaMemcpyHostToDevice);
 
@@ -463,8 +463,8 @@ void CudaBoids::setup(const char *inputName, int num_of_threads) {
     dataParams.imageWidth = image->width;
     dataParams.imageHeight = image->height;
     dataParams.boidCount = boidCount;
-    dataParams.inData = deviceInData;
-    dataParams.outData = deviceOutData;
+    dataParams.inData = (float4 *)deviceInData;
+    dataParams.outData = (float4 *)deviceOutData;
 
     cudaMemcpyToSymbol(cuDataParams, &dataParams, sizeof(GlobalDataConstants));
 
@@ -498,7 +498,7 @@ void CudaBoids::setup(const char *inputName, int num_of_threads) {
 
 Image *CudaBoids::output() {
     // Copy memory from GPU to CPU
-    cudaMemcpy(hostData, deviceOutData, sizeof(float4) * boidCount, cudaMemcpyDeviceToHost);
+    cudaMemcpy((float4 *)hostData, deviceOutData, sizeof(float4) * boidCount, cudaMemcpyDeviceToHost);
 
     cudaError_t errCode = cudaPeekAtLastError();
     if (errCode != cudaSuccess) {
@@ -506,7 +506,7 @@ Image *CudaBoids::output() {
     }
 
     // Reformat float4 data as boid_t before returning Image ptr
-    copyFloatToBoid(hostData, image->data->boids, boidCount);
+    copyFloatToBoid((float4 *)hostData, image->data->boids, boidCount);
 
     return image;
 }

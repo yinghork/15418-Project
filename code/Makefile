@@ -2,7 +2,7 @@ EXECUTABLE := boids
 LDFLAGS=-L/usr/local/depot/cuda-10.2/lib64/ -lcudart
 CU_FILES   := cudaBoids.cu
 CU_DEPS    :=
-CC_FILES   := main.cpp seqBoids.cpp
+CC_FILES   := main.cpp seqBoids.cpp openmpBoids.cpp
 LOGS	   := logs
 
 all: $(EXECUTABLE)
@@ -12,7 +12,7 @@ all: $(EXECUTABLE)
 ARCH=$(shell uname | sed -e 's/-.*//g')
 OBJDIR=objs
 CXX=g++ -m64 -std=c++11
-CXXFLAGS = -I. -O3 -Wall -g -fopenmp -Wno-unknown-pragmas
+CXXFLAGS = -O3 -Wall -g -fopenmp -Wno-unknown-pragmas
 HOSTNAME=$(shell hostname)
 
 LIBS       :=
@@ -26,7 +26,7 @@ LDFRAMEWORKS := $(addprefix -framework , $(FRAMEWORKS))
 
 NVCC=nvcc
 
-OBJS=$(OBJDIR)/main.o $(OBJDIR)/seqBoids.o $(OBJDIR)/cudaBoids.o
+OBJS=$(OBJDIR)/main.o $(OBJDIR)/seqBoids.o $(OBJDIR)/cudaBoids.o $(OBJDIR)/openmpBoids.o
 
 
 .PHONY: dirs clean

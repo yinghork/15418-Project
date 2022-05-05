@@ -3,29 +3,6 @@
 #ifndef __BOIDS_H__
 #define __BOIDS_H__
 
-// struct Image;
-
-// fireworks constants
-//#define NUM_FIREWORKS 15
-//#define NUM_SPARKS 20
-
-/*
-typedef enum {
-    CIRCLE_RGB,
-    CIRCLE_RGBY,
-    CIRCLE_TEST_10K,
-    CIRCLE_TEST_100K,
-    PATTERN,
-    SNOWFLAKES,
-    BOUNCING_BALLS,
-    HYPNOSIS,
-    FIREWORKS,
-    SNOWFLAKES_SINGLE_FRAME,
-    BIG_LITTLE,
-    LITTLE_BIG
-} SceneName;
-*/
-
 // list of boids
 Q_NEW_HEAD(boid_list_t, boid);
 
@@ -63,6 +40,16 @@ struct Image {
     int height;
     group_t *data;
 };
+
+/* Bin Lattice spatial subdivision */
+// The lattice grid, bin partition over the simulation space
+typedef struct {
+    int rows;
+    int cols;
+    int cellWidth;
+    int cellHeight;
+    boid_list_t *bins;
+} grid_t;
 
 class Boids {
   public:

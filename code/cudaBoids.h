@@ -11,10 +11,10 @@ class CudaBoids : public Boids {
 
   private:
     Image *image;
-    float4 *hostData;
+    float *hostData;
     int boidCount;
-    float4 *deviceInData;
-    float4 *deviceOutData;
+    float *deviceInData;
+    float *deviceOutData;
  
   public:
     CudaBoids();

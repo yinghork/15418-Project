@@ -1,20 +1,21 @@
-#ifndef __SEQ_BOIDS_H__
-#define __SEQ_BOIDS_H__
+#ifndef __OPENMP_BOIDS_H__
+#define __OPENMP_BOIDS_H__
 
 #include "boids.h"
 
-class SeqBoids : public Boids {
+class OpenmpBoids : public Boids {
 
   private:
     Image *image;
     group_t *boid_group;
     grid_t *grid;
     int *gridCoord;
+    int total_threads;
 
   public:
-    SeqBoids();
+    OpenmpBoids();
 
-    virtual ~SeqBoids();
+    virtual ~OpenmpBoids();
     
     void setup(const char* inputName, int num_of_threads);
 

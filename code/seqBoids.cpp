@@ -10,33 +10,14 @@
 #include "boids.h"
 #include "seqBoids.h"
 
-#define CHUNK 300
-
-/* Bin Lattice spatial subdivision */
-
-// The lattice grid, bin partition over the simulation space
-typedef struct {
-    int rows;
-    int cols;
-    int cellWidth;
-    int cellHeight;
-    boid_list_t *bins;
-} grid_t;
-
-/* Global variables */
-Image *image;
-group_t *boid_group;
-grid_t *grid;
-int *gridCoord;
-int total_threads; 
+/* Class variables (defined in header file) */
+//Image *image;
+//group_t *boid_group;
+//grid_t *grid;
+//int *gridCoord;
+//int total_threads; 
 
 /* Boids Code */
-
-SeqBoids::SeqBoids() {
-}
-
-SeqBoids::~SeqBoids() {
-}
 
 // Helper function: get absolute distance between two boids
 static float dist(boid_t *b1, boid_t *b2) {
@@ -44,7 +25,7 @@ static float dist(boid_t *b1, boid_t *b2) {
 }
 
 
-static vel_t leader_steer(boid_t *boid, vel_t v_sum, pos_t p_sum, boid_t* lead, int flockSize){
+vel_t SeqBoids::leader_steer(boid_t *boid, vel_t v_sum, pos_t p_sum, boid_t* lead, int flockSize){
 
     float followFactor = 0.001; // Adjust velocity by this %
 
@@ -71,7 +52,7 @@ static vel_t leader_steer(boid_t *boid, vel_t v_sum, pos_t p_sum, boid_t* lead, 
     return result;
 }
 
-vel_t separation_steer(boid_t *boid, pos_t p_sum, float d, int flockSize) {
+vel_t SeqBoids::separation_steer(boid_t *boid, pos_t p_sum, float d, int flockSize) {
     float avoidFactor = 10.0;
 
     vel_t result;
@@ -84,7 +65,7 @@ vel_t separation_steer(boid_t *boid, pos_t p_sum, float d, int flockSize) {
     return result;
 }
 
-vel_t cohesion_steer(boid_t *boid, vel_t v_sum, pos_t p_sum, int flockSize) {
+vel_t SeqBoids::cohesion_steer(boid_t *boid, vel_t v_sum, pos_t p_sum, int flockSize) {
 
     float centeringFactor = 0.005; // adjust velocity by this %
 
@@ -104,7 +85,7 @@ vel_t cohesion_steer(boid_t *boid, vel_t v_sum, pos_t p_sum, int flockSize) {
     return result;
 }
 
-vel_t alignment_steer(boid_t *boid, vel_t v_sum, pos_t p_sum, int flockSize) {
+vel_t SeqBoids::alignment_steer(boid_t *boid, vel_t v_sum, pos_t p_sum, int flockSize) {
 
     float matchingFactor = 0.05; // Adjust by this % of average velocity
 
@@ -121,13 +102,14 @@ vel_t alignment_steer(boid_t *boid, vel_t v_sum, pos_t p_sum, int flockSize) {
     return result;
 }
 
-void update_boid(int i, float deltaT, float e, float s, float k, float m, float l, Image *image, boid_t* lead) {
+void SeqBoids::update_boid(int i, float deltaT, float e, float s, float k, float m, float l, boid_t* lead) {
 
     float minDistance = 40.0; // The distance to stay away from other boids
 
     // First, find the visible neighborhood of this boid
     int flockSize = 0;
     int neighSize = 0;
+    group_t *boid_group = image->data;
     boid_t *myBoid = &(boid_group->boids[i]);
     int gridX = myBoid->grid_x;
     int gridY = myBoid->grid_y;
@@ -238,7 +220,8 @@ void update_boid(int i, float deltaT, float e, float s, float k, float m, float 
 
 /* To prevent the data structure from being modified during execution,
  * update the grid at the end of the frame update based on new positions. */
-void update_grid (Image *image) {
+void SeqBoids::update_grid () {
+    group_t *boid_group = image->data;
     int boidCount = boid_group->count;
     boid_t *boids = boid_group->boids;
 
@@ -251,7 +234,8 @@ void update_grid (Image *image) {
         int oldGridX = boids[i].grid_x;
         int oldGridY = boids[i].grid_y;
 
-        if ((oldGridX != gridX || oldGridY != gridY) && gridX >= 0 && gridY >= 0 && gridX < grid->rows && gridY < grid->cols) {
+        if ((oldGridX != gridX || oldGridY != gridY) && gridX >= 0 && gridY >= 0 
+                && gridX < grid->rows && gridY < grid->cols) {
 
             boids[i].grid_x = gridX;
             boids[i].grid_y = gridY;
@@ -271,6 +255,22 @@ void update_grid (Image *image) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+SeqBoids::SeqBoids() {
+    image = NULL;
+    boid_group = NULL;
+    grid = NULL;
+    gridCoord = NULL;
+}
+
+SeqBoids::~SeqBoids() {
+    if (image) {
+        delete gridCoord;
+        delete grid;
+        delete boid_group;
+        delete image;
+    }
+}
+
 /* Update function */
 void SeqBoids::updateScene() {
 
@@ -285,21 +285,19 @@ void SeqBoids::updateScene() {
     int leader = 0;
     boid_t* lead = &(boid_group->boids[leader]);
 
-    // We iterate over grid (parallelize over grids)
-    int i;
-    #pragma omp parallel for private(i) schedule(dynamic, CHUNK)
-    for (i = 0; i < grid->rows * grid->cols; i++) {
+    // We iterate over grid sequentially
+    for (int i = 0; i < grid->rows * grid->cols; i++) {
         boid_list_t* bin = &grid->bins[i];
 
         boid_t* boid = Q_GET_FRONT(bin);
         while(boid != NULL){
-            update_boid(boid->index, deltaT, e, s, k, m, l, image, lead);
+            update_boid(boid->index, deltaT, e, s, k, m, l, lead);
             boid = Q_GET_NEXT(boid, grid_link);
         }   
     }
 
     // After that's finished, update the data structure
-    update_grid(image);
+    update_grid();
 }
 
 
@@ -319,7 +317,7 @@ void SeqBoids::setup(const char *inputFile, int num_of_threads) {
     int dim_y;
     fscanf(input, "%d %d\n", &dim_x, &dim_y);
 
-    printf("Allocating image of dim %d %d.\n", dim_x, dim_y);
+    // printf("Allocating image of dim %d %d.\n", dim_x, dim_y);
   
     // Note: input dim_x=500 dim_y=500 implies image of dim [-500,500],[-500,500].
     image = (Image *)malloc(sizeof(Image));
@@ -329,7 +327,7 @@ void SeqBoids::setup(const char *inputFile, int num_of_threads) {
     image->width = 2 * dim_x;
     image->height = 2 * dim_y;
 
-    printf("Image width %d and height %d.\n", image->width, image->height);
+    // printf("Image width %d and height %d.\n", image->width, image->height);
 
     int num_of_boids;
     fscanf(input, "%d\n", &num_of_boids);
@@ -394,8 +392,6 @@ void SeqBoids::setup(const char *inputFile, int num_of_threads) {
         assert(&(boids[i]) == Q_GET_TAIL(bin));
         assert(Q_GET_TAIL(bin) -> index == i);
     }
-
-    total_threads = num_of_threads;
 }
 
 /* Output function */
