@@ -35,6 +35,7 @@ struct GlobalFlockConstants {
     float alignmentWeight;
     float separationWeight;
     float centeringWeight;
+    float leaderWeight;
 };
 
 __constant__ GlobalDataConstants cuDataParams;
@@ -112,8 +113,7 @@ __device__ __inline__ float2 calculate_move(int i) {
    
     float2 accel = make_float2(0.f, 0.f);
     
-    // TODO: Do we keep the centering force? Leader following?
-    // Extra force (indep of neighbors) to stay on screen
+    // Calculate force to stay on screen (which is indep of neighbors)
     float2 centeringForce = make_float2(0.f, 0.f);
 
     float2 centerOffset = -pos;
@@ -128,6 +128,33 @@ __device__ __inline__ float2 calculate_move(int i) {
     if (sqrMagnitude(centeringForce) > c * c) {
         centeringForce = normalize(centeringForce);
         centeringForce *= c;
+    }
+
+    // Calculate leader-following force (leader is boid 0, moves randomly)
+    float2 followingForce = make_float2(0.f, 0.f);
+    //__shared__ float4 leaderBoid = inData[0];
+    //__shared__ float2 leaderPos = make_float2(leaderBoid.x, leaderBoid.y);
+
+    /*
+    // CUDA doesn't have the rand() function, pass from cpu call?
+    if (i == 0) {
+        // With a 20% chance, apply a random movement force
+        int move_random = rand() % 10;
+        if (move_random < 2) {
+            int imageWidth = cuDataParams.imageWidth;
+            int imageHeight = cuDataParams.imageHeight;
+            float randX = (rand() % imageWidth) - (imageWidth / 2);
+            float randY = (rand() % imageHeight) - (imageHeight / 2);
+            followingForce = make_float2(randX, randY);
+        }
+        // Random following force with prob 20%? Pre-gen on the CPU?
+    }
+    */
+    if (i != 0) {
+        // Leader following force is leader position offset from current position
+        float4 leaderBoid = inData[0];
+        float2 leaderPos = make_float2(leaderBoid.x, leaderBoid.y);
+        followingForce = leaderPos - pos;
     }
  
     // Calculate the basic 3 forces
@@ -199,10 +226,12 @@ __device__ __inline__ float2 calculate_move(int i) {
     float k = cuFlockParams.cohesionWeight;
     float m = cuFlockParams.alignmentWeight;
     float s = cuFlockParams.separationWeight;
+    float l = cuFlockParams.leaderWeight;
 
     cohesionForce *= k;
     alignmentForce *= m;
     separationForce *= s;
+    followingForce *= l;
 
     if (sqrMagnitude(cohesionForce) > k * k) {
         cohesionForce = normalize(cohesionForce);
@@ -216,8 +245,12 @@ __device__ __inline__ float2 calculate_move(int i) {
         separationForce = normalize(separationForce);
         separationForce *= s;
     }
+    if (sqrMagnitude(followingForce) > l * l) {
+        followingForce = normalize(followingForce);
+        followingForce *= l;
+    }
 
-    accel = cohesionForce + alignmentForce + separationForce + centeringForce;
+    accel = cohesionForce + alignmentForce + separationForce + followingForce + centeringForce;
    
     /* 
     if (i != 0)
@@ -486,6 +519,7 @@ void CudaBoids::setup(const char *inputName, int num_of_threads) {
     flockParams.alignmentWeight = 1.f;
     flockParams.separationWeight = 1.f;
     flockParams.centeringWeight = 0.05f;
+    flockParams.leaderWeight = 0.01f;
 
     cudaMemcpyToSymbol(cuFlockParams, &flockParams, sizeof(GlobalFlockConstants));
  
