@@ -514,7 +514,7 @@ void CudaBoids::setup(const char *inputName, int num_of_threads) {
     flockParams.squareMaxSpeed = flockParams.maxSpeed * flockParams.maxSpeed;
     //flockParams.squareNeighborRadius = 1.5f * 1.5f;
     flockParams.squareNeighborRadius = 80.f * 80.f;
-    flockParams.squareAvoidanceRadius = flockParams.squareNeighborRadius * 0.75f * 0.75f;
+    flockParams.squareAvoidanceRadius = flockParams.squareNeighborRadius * 0.5f;
     flockParams.cohesionWeight = 1.f;
     flockParams.alignmentWeight = 1.f;
     flockParams.separationWeight = 1.f;
