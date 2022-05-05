@@ -24,6 +24,7 @@
  
 #define Q_NEW_HEAD(Q_HEAD_TYPE, Q_ELEM_TYPE)  \
     typedef struct Q_HEAD_TYPE {           \
+        int count;                  \
         struct Q_ELEM_TYPE *head;   \
         struct Q_ELEM_TYPE *tail;   \
     } Q_HEAD_TYPE
@@ -59,6 +60,7 @@
  **/
 #define Q_INIT_HEAD(Q_HEAD) \
 do {\
+    (Q_HEAD) -> count = 0;              \
     (Q_HEAD) -> head = NULL;          \
     (Q_HEAD) -> tail = NULL;          \
 } while(0)
@@ -148,7 +150,7 @@ do {                                                            \
  *  @return Pointer to the first element in the queue, or NULL if the queue
  *          is empty
  **/
-#define Q_GET_FRONT(Q_HEAD)  ((Q_HEAD) -> head)
+#define Q_GET_FRONT(Q_HEAD)  (Q_HEAD) -> head 
 
 
 
@@ -161,7 +163,7 @@ do {                                                            \
  *  @return Pointer to the last element in the queue, or NULL if the queue
  *          is empty
  **/
-#define Q_GET_TAIL(Q_HEAD)  ((Q_HEAD) -> tail)
+#define Q_GET_TAIL(Q_HEAD)  (Q_HEAD) -> tail 
 
 
 
@@ -178,7 +180,7 @@ do {                                                            \
  *
  *  @return The element after Q_ELEM, or NULL if there is no next element
  **/
-#define Q_GET_NEXT(Q_ELEM, LINK_NAME)  (((Q_ELEM) -> LINK_NAME).next)
+#define Q_GET_NEXT(Q_ELEM, LINK_NAME)  ((Q_ELEM) -> LINK_NAME).next
  
 
 
