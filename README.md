@@ -9,6 +9,9 @@ Claire Ko (yinghork), Haley Carter (hcarter)
 
 https://user-images.githubusercontent.com/56246022/167056239-59f0998c-f836-4f27-a6a5-914ee1d23265.mov
 
+### VIDEO 
+
+https://youtu.be/NAyHlihTOWE
 
 
 ### SUMMARY
