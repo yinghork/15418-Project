@@ -406,6 +406,8 @@ __global__ void bitonicSwap(int j, int k) {
     }
 }
 
+// Temporary code based on the morton code implementation for 3d coords given at 
+// https://www.forceflow.be/2013/10/07/morton-encodingdecoding-through-bit-interleaving-implementations/
 __device__ __inline__ int mortonCode(unsigned int x, unsigned int y) {
     int code = 0;
     unsigned int mask = 0b1;
