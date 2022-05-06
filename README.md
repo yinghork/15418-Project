@@ -7,6 +7,10 @@ Optimizing Parallelization of Boid Simulation
 Claire Ko (yinghork), Haley Carter (hcarter)
 
 
+https://user-images.githubusercontent.com/56246022/167056239-59f0998c-f836-4f27-a6a5-914ee1d23265.mov
+
+
+
 ### SUMMARY
 We are going to implement an optimized Boid Movement Calculation on the NVIDIA GPUs in the lab. We will use various work distribution strategies and communication mechanisms to create a more efficient simulation of many objects. 
 
